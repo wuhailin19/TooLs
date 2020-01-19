@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FirstConfig>
+  <SecondConfig category="Program">
+    <Title>Program</Title>
+    <DataUrl>F:\工作\项目</DataUrl>
+  </SecondConfig>
+  <SecondConfig category="InvincibleCMS">
+    <Title>InvincibleCMS</Title>
+    <DataUrl>C:\Users\Symansbon\Desktop\改版框架\InvincibleCMS</DataUrl>
+  </SecondConfig>
+  <SecondConfig category="SqlUrl">
+    <Title>SqlUrl</Title>
+    <DataUrl>C:\Users\Symansbon\Desktop\改版框架\后台改版sql.sql</DataUrl>
+  </SecondConfig>
+  <SecondConfig category="DataBase">
+    <Title>DataBase</Title>
+    <DataUrl>地址3</DataUrl>
+  </SecondConfig>
+  <SecondConfig category="LoginSystem">
+    <Title>LoginSystem</Title>
+    <DataUrl>bbBBVAKVNM2</DataUrl>
+  </SecondConfig>
+  <SecondConfig category="Localhost">
+    <Title>Localhost</Title>
+    <DataUrl>18006</DataUrl>
+  </SecondConfig>
+</FirstConfig>
