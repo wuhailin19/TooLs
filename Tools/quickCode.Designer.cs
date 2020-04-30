@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.txt_contentID = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tools_repeater = new System.Windows.Forms.ToolStripMenuItem();
             this.tools_addfiled = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,6 +53,7 @@
             this.btn_testlink = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.page_select = new System.Windows.Forms.ComboBox();
+            this.txt_contentID = new System.Windows.Forms.RichTextBox();
             this.groupBox1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -68,18 +68,6 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "代码区";
-            // 
-            // txt_contentID
-            // 
-            this.txt_contentID.AcceptsReturn = true;
-            this.txt_contentID.ContextMenuStrip = this.contextMenuStrip1;
-            this.txt_contentID.Location = new System.Drawing.Point(3, 17);
-            this.txt_contentID.Margin = new System.Windows.Forms.Padding(0);
-            this.txt_contentID.Multiline = true;
-            this.txt_contentID.Name = "txt_contentID";
-            this.txt_contentID.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txt_contentID.Size = new System.Drawing.Size(838, 500);
-            this.txt_contentID.TabIndex = 8;
             // 
             // contextMenuStrip1
             // 
@@ -315,6 +303,16 @@
             this.page_select.TabIndex = 9;
             this.page_select.SelectedIndexChanged += new System.EventHandler(this.page_select_SelectedIndexChanged);
             // 
+            // txt_contentID
+            // 
+            this.txt_contentID.ContextMenuStrip = this.contextMenuStrip1;
+            this.txt_contentID.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txt_contentID.Location = new System.Drawing.Point(6, 20);
+            this.txt_contentID.Name = "txt_contentID";
+            this.txt_contentID.Size = new System.Drawing.Size(829, 494);
+            this.txt_contentID.TabIndex = 9;
+            this.txt_contentID.Text = "";
+            // 
             // quickCode
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -327,7 +325,6 @@
             this.Text = "quickCode";
             this.Load += new System.EventHandler(this.quickCode_Load);
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -338,7 +335,6 @@
         #endregion
 
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox txt_contentID;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ComboBox page_select;
         private System.Windows.Forms.Label label1;
@@ -362,5 +358,6 @@
         private System.Windows.Forms.ComboBox fileds_select;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ComboBox type_select;
+        private System.Windows.Forms.RichTextBox txt_contentID;
     }
 }

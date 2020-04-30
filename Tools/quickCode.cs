@@ -15,6 +15,21 @@ using NPinyin;
 /// </summary>
 namespace Tools
 {
+    public static class RichTextBoxExtension
+    {
+        public static void AppendTextColorful(this RichTextBox rtBox, string text, Color color, bool addNewLine = true)
+        {
+            if (addNewLine)
+            {
+                text += Environment.NewLine;
+            }
+            rtBox.SelectionStart = rtBox.TextLength;
+            rtBox.SelectionLength = 0;
+            rtBox.SelectionColor = color;
+            rtBox.AppendText(text);
+            rtBox.SelectionColor = rtBox.ForeColor;
+        }
+    }
     public partial class quickCode : Form
     {
         public quickCode()
@@ -94,6 +109,7 @@ namespace Tools
             type_select.DisplayMember = "Value";
             type_select.ValueMember = "Key";
             type_select.Text = "普通";
+
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -546,7 +562,7 @@ namespace Tools
                     filename = filenames[i].ToString();
                     extension = Path.GetExtension(filename);
                     name = filename.Substring(filename.LastIndexOf("\\") + 1).ToLower();
-                    if (extension == ".html" || extension == ".htm")
+                    if (extension == ".aspx" || extension == ".html")
                     {
                         s_list.Add(name);
                     }

@@ -87,5 +87,5 @@ E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.csproj.CopyComplete
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.exe
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.pdb
-E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.quickCode.resources
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.csprojAssemblyReference.cache
+E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.RichTextBoxExtension.resources
