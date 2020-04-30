@@ -49,19 +49,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonClass\CommonClass.cs" />
+    <Compile Include="CommonClass\WebUtility.cs" />
     <Compile Include="CompileWebsite.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CompileWebsite.Designer.cs">
       <DependentUpon>CompileWebsite.cs</DependentUpon>
     </Compile>
-    <Compile Include="CreateDataBase.cs" />
+    <Compile Include="DAL\CreateDataBase.cs" />
     <Compile Include="Createpage.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Createpage.Designer.cs">
       <DependentUpon>Createpage.cs</DependentUpon>
     </Compile>
+    <Compile Include="DAL\ModelFiled_dal.cs" />
     <Compile Include="DataOperas.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -74,16 +77,24 @@
     <Compile Include="DataTools.Designer.cs">
       <DependentUpon>DataTools.cs</DependentUpon>
     </Compile>
-    <Compile Include="DBHelper.cs" />
+    <Compile Include="DAL\DBHelper.cs" />
     <Compile Include="InsertColumns.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="InsertColumns.designer.cs">
       <DependentUpon>InsertColumns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\ContentModel.cs" />
+    <Compile Include="Model\ModelFiled.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadXMLdoc.cs" />
+    <Compile Include="quickCode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="quickCode.Designer.cs">
+      <DependentUpon>quickCode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DAL\ReadXMLdoc.cs" />
     <Compile Include="testimg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,6 +125,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="quickCode.resx">
+      <DependentUpon>quickCode.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="testimg.resx">
       <DependentUpon>testimg.cs</DependentUpon>
     </EmbeddedResource>

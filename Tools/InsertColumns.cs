@@ -241,18 +241,12 @@ namespace Tools
                 if (e.Control && e.KeyCode == Keys.D1)//按下ctrl+1
                 {
                     string str = GetNewStringUp(txt_content.SelectedText);
-                    string contents = txt_content.Text;
-                    string selectcont = txt_content.SelectedText;
-
-                    this.txt_content.Text = contents.Replace(selectcont, str);
+                    this.txt_content.SelectedText = str;
                 }
                 if (e.Control && e.KeyCode == Keys.D2)//按下ctrl+2
                 {
                     string str = GetNewStringDown(txt_content.SelectedText);
-                    string contents = txt_content.Text;
-                    string selectcont = txt_content.SelectedText;
-
-                    this.txt_content.Text = contents.Replace(selectcont, str);
+                    this.txt_content.SelectedText = str;
                 }
             }
             catch (Exception ex)

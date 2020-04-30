@@ -6,11 +6,11 @@
   </SecondConfig>
   <SecondConfig category="InvincibleCMS">
     <Title>InvincibleCMS</Title>
-    <DataUrl>C:\Users\Symansbon\Desktop\改版框架\InvincibleCMS</DataUrl>
+    <DataUrl>F:\工作\改版后台\InvincibleCMS</DataUrl>
   </SecondConfig>
   <SecondConfig category="SqlUrl">
     <Title>SqlUrl</Title>
-    <DataUrl>C:\Users\Symansbon\Desktop\改版框架\后台改版sql.sql</DataUrl>
+    <DataUrl>F:\工作\改版后台\后台改版sql.sql</DataUrl>
   </SecondConfig>
   <SecondConfig category="DataBase">
     <Title>DataBase</Title>
@@ -18,10 +18,10 @@
   </SecondConfig>
   <SecondConfig category="LoginSystem">
     <Title>LoginSystem</Title>
-    <DataUrl>bbBBVAKVNM2</DataUrl>
+    <DataUrl>zhongnongrunzeef7cc3e882d8</DataUrl>
   </SecondConfig>
   <SecondConfig category="Localhost">
     <Title>Localhost</Title>
-    <DataUrl>18006</DataUrl>
+    <DataUrl>18019</DataUrl>
   </SecondConfig>
 </FirstConfig>

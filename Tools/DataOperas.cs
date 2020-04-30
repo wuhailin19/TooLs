@@ -230,5 +230,10 @@ namespace Tools {
 				MessageBox.Show("连接失败");
 			}
 		}
+
+		private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+		{
+
+		}
 	}
 }

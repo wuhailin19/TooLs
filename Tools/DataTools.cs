@@ -55,7 +55,7 @@ namespace Tools
                     txt_resultID.Text = getjquerystr();
                     break;
                 case "7":
-                    txt_resultID.Text = getchstring();
+                    txt_resultID.Text = quickrolePromession();
                     break;
                 case "8":
                     txt_resultID.Text = Htmlstringtosbrstring();
@@ -245,10 +245,25 @@ namespace Tools
         public string GetEasyFieldsNewString(string Tablename)
         {
             StringBuilder stringBuilder = new StringBuilder();
+            string swhere = null;//读取数据条件
+            string orderby = null;//排序方式
+            string helperclass = null;//使用方法类
             DataTable dt = null;
+            if (Tablename == "Article")
+            {
+                stringBuilder.Append("int recount=0;\r\n");
+                stringBuilder.Append("int pageindex=1;\r\n");
+                stringBuilder.Append("int pagesize=8;\r\n");
+                stringBuilder.Append("if(Request[\"page\"]!=null);\r\n");
+                stringBuilder.Append("{\r\n");
+                stringBuilder.Append("page=WebUtility.getparam(\"page\");\r\n");
+                stringBuilder.Append("}\r\n");
+                helperclass = "Commonoperate.";
+            }
             string filds = "SystemId,Hits,KeyWord,Description,IsTop,IsRecommend,IsHot,IsSlide,IsColor,OrderId,AddUserName,LastEditUserName,LastEditDate,CheckedLevel";
-            stringBuilder.Append("dt = GetDataList(\"" + Tablename + "\", \"");
-            dt = DBHelper.GetDataSet("Select Name FROM SysColumns Where id=Object_Id('" + Tablename + "') order by colid asc");
+            stringBuilder.Append($"dt = {helperclass}GetDataList(\"{Tablename}\", \"");
+
+            dt = DBHelper.GetDataSet($"Select Name FROM SysColumns Where id=Object_Id('{Tablename}') order by colid asc");
             foreach (DataRow dr in dt.Rows)
             {
                 if (!filds.Contains(dr["Name"].ToString()))
@@ -257,15 +272,30 @@ namespace Tools
                 }
             }
             stringBuilder.Remove(stringBuilder.Length - 1, 1);
-
-            stringBuilder.Append("\", \"ParentId=\", \"OrderId desc\");\r\n");
+            if (Tablename == "Article")
+                orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
+            else
+                orderby = "OrderId desc\");";
+            dt = DBHelper.GetDataSet("select distinct(ParentId)pid from " + Tablename + "");
+            if (dt.Rows.Count > 0)
+            {
+                if (dt.Rows.Count > 1)
+                {
+                    swhere = " and ParentId=\"+t";
+                }
+                else
+                {
+                    swhere = " and ParentId=" + dt.Rows[0]["pid"].ToString() + "\"";
+                }
+            }
+            stringBuilder.Append($"\", \"IsColor=0{swhere}, \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,{orderby}\r\n");
             stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\r\n");
             stringBuilder.Append("{\r\n");
             stringBuilder.Append("}\r\n");
             return stringBuilder.ToString();
         }
 
-        //     public string GetPublicNews(string Tablename) {
+        //public string GetPublicNews(string Tablename) {
         //StringBuilder stringBuilder = new StringBuilder();
         //DataTable dt = null;
         //dt = DBHelper.GetDataSet("Select Name FROM SysColumns Where id=Object_Id('" + Tablename + "') order by colid asc");
@@ -311,7 +341,7 @@ namespace Tools
             }
             stringBuilder.Remove(stringBuilder.Length - 1, 1);
 
-            stringBuilder.Append("\", \"ParentId=\", \"OrderId desc\");\r\n");
+            stringBuilder.Append("\", \"IsColor=0 and ParentId=\", \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,OrderId desc\");\r\n");
             stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\r\n");
             stringBuilder.Append("{\r\n");
             stringBuilder.Append("}\r\n");
@@ -390,56 +420,122 @@ namespace Tools
         }
 
         /// <summary>
-        /// case "7"：筛选中文字符
+        /// case "7"：快速分配权限
         /// </summary>
         /// <returns></returns>
-        public string getchstring()
+        public string quickrolePromession()
         {
-            Regex r = new Regex("([\u4e00-\u9fa5])");
-            //Regex r = new Regex("[0-9]");
-            //Regex r3 = new Regex("[A-Z]");
-            string newstring = null;
-            string str = txt_contentID.Text.Trim();
-            //str = Regex.Replace(str, "\\s{34,}", "TGT");
-            if (!string.IsNullOrEmpty(str))
+            DataTable dt = null;
+            DataTable dt2 = null;
+            int count = 0;
+            DataTable model = null;
+            string tablename = null;
+            try
             {
-                for (int i = 0; i < str.Length; i++)
+                dt = DBHelper.GetDataSet("select ModelType,ColumnId from ColumnCategory order by OrderId asc,ColumnId desc");
+                List<string> promissionstring = new List<string>();
+                if (dt != null && dt.Rows.Count > 0)
                 {
-                    if (r.Match(str[i].ToString()).Success)
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        newstring += str[i].ToString();
-                        str = Regex.Replace(str, "[\u4e00-\u9fa5|\uff0c]", "");
+                        if (dr["ModelType"].ToString() != "-3")
+                        {
+                            if (dr["ModelType"].ToString() != "-1")
+                            {
+                                model = DBHelper.GetDataSet("select TableName from ContentModel where ModelId=" + dr["ModelType"]);
+                                if (model != null)
+                                {
+                                    tablename = model.Rows[0]["TableName"].ToString();
+                                    count = Convert.ToInt32(DBHelper.GetDataSet("select count(*)as Count_Filed from(select distinct(ParentId) from " + tablename + ") as T").Rows[0][0]);
+                                    if (count > 1)
+                                    {
+                                        dt2 = DBHelper.GetDataSet("select distinct(ParentId)as Count_Filed,count(ParentId)as count_ParentId from  " + tablename + " group by ParentId");
+                                        if (dt2.Rows != null && dt2.Rows.Count > 0)
+                                        {
+                                            foreach (DataRow dr2 in dt2.Rows)
+                                            {
+                                                if (Convert.ToInt32(dr2["count_ParentId"]) > 1)
+                                                {
+                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|30"))
+                                                        promissionstring.Add($"{dr2["Count_Filed"]}|30");
+                                                }
+                                                else
+                                                {
+                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|10"))
+                                                        promissionstring.Add(dr2["Count_Filed"] + "|10");
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
+                                                promissionstring.Add($"{dr["ColumnId"]}|10");
+                                        }
+                                    }
+                                    else if (count == 1)
+                                    {
+                                        dt2 = DBHelper.GetDataSet("select distinct(ParentId)as Count_Filed,count(ParentId)as count_ParentId from  " + tablename + " group by ParentId");
+                                        if (dt2.Rows != null && dt2.Rows.Count > 0)
+                                        {
+                                            foreach (DataRow dr2 in dt2.Rows)
+                                            {
+                                                if (Convert.ToInt32(dr2["count_ParentId"]) > 1)
+                                                {
+                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|30"))
+                                                        promissionstring.Add($"{dr2["Count_Filed"]}|30");
+                                                }
+                                                else
+                                                {
+                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|10"))
+                                                        promissionstring.Add($"{dr2["Count_Filed"]}|10");
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
+                                                promissionstring.Add($"{dr["ColumnId"]}|10");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
+                                            promissionstring.Add($"{dr["ColumnId"]}|10");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!promissionstring.Contains($"{dr["ColumnId"]}|30"))
+                                    promissionstring.Add($"{dr["ColumnId"]}|30");
+                            }
+                        }
+                        else
+                        {
+                            if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
+                                promissionstring.Add($"{dr["ColumnId"]}|10");
+                        }
                     }
-                    //else if (r2.Match(str[i].ToString()).Success)
-                    //{
-                    //    newstring += str[i].ToString();
-                    //}
-                    //else if (r3.Match(str[i].ToString()).Success)
-                    //{
-                    //    newstring += str[i].ToString();
-                    //}
-                    else
-                    {
-                        newstring += "  ";
-                    }
-
                 }
+                string str = null;
+                string strs = "ColumnShow,ColumnEditor,PictureShow,PictureAdd,PictureEditor,PictureDelete,PictureTypeShow,PictureTypeAdd,PictureTypeEditor,PictureTypeDelete,FilesShow,FilesAdd,FilesEditor,FilesDelete,FileTypeShow,FileTypeAdd,FileTypeEditor,FileTypeDelete,webConfigShow,AdministrationShow,";
+                for (int i = 0; i < promissionstring.Count; i++)
+                {
+                    str += promissionstring[i] + ",";
+                }
+                str = str.Remove(str.Length - 1, 1);
+                str += "&";
+
+                int result = DBHelper.ExecuteCommand($"update RolesPermissions set NodesPermissions='{str}',websitePermissions='{strs}' where RolesID=3");
+                if (result > 0)
+                    return "修改成功";
+                else
+                    return "修改失败";
             }
-            else
+            catch (Exception ex)
             {
-                return " ";
+                return ex.Message;
             }
-            newstring = Regex.Replace(newstring, "\\s{2,}", "\r\n");
-            newstring = newstring.Substring(0, newstring.LastIndexOf("\r\n"));
-            newstring = newstring.Replace(" ", "");
-            newstring = newstring.TrimStart('\r').TrimStart('\n');
-            //str = str.Replace("50", "(50)");
-            //str = str.Replace("255", "(255)");
-            //str = str.Replace("200", "(200)");
-            //str = str.Replace("18", "(18)");
-            //str = str.Replace("\r\n", ",\r\n");
-            //newstring = str;
-            return newstring;
         }
 
         ////string newstr = null;

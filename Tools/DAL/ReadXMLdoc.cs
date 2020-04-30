@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using System.IO;
 using System.Collections;
+using System.IO;
+using System.Windows.Forms;
+using System.Xml;
 
-namespace Tools {
+namespace Tools
+{
 
 	public class ReadXMLdoc {
 		public string fileroot = Application.StartupPath + @"\FileInfor.xml";
@@ -62,7 +60,7 @@ namespace Tools {
 					XmlElement item_childs = doc.CreateElement("DataUrl");
                     if (i == 5)
                     {
-                        item_childs.InnerText = "17987";
+                        item_childs.InnerText = "18000";
                     }
                     else
                     {

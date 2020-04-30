@@ -172,5 +172,27 @@ namespace Tools
                 }
             }
         }
+
+        public static bool Exists(string strSql)
+        {
+            object obj = ExecuteCommand(strSql);
+            int cmdresult;
+            if ((Object.Equals(obj, null)) || (Object.Equals(obj, System.DBNull.Value)))
+            {
+                cmdresult = 0;
+            }
+            else
+            {
+                cmdresult = int.Parse(obj.ToString());
+            }
+            if (cmdresult == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 }

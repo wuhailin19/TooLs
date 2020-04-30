@@ -111,7 +111,7 @@
             "asp服务器代码",
             "Repeater代码",
             "命名Jquery变量",
-            "筛选中文",
+            "快速分配权限",
             "字符串转换(html-stringbuilder)",
             "获取字符串长度",
             "DataRow",
