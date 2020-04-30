@@ -595,8 +595,22 @@ namespace Tools
             string selectcont = txt_contentID.SelectedText;
             try
             {
-                txt_contentID.SelectedText = $"<%=GetDataRowEditorValue(PageDr,\"{item.Name}\")%>";
-                tools_addfiled.DropDownItems.Remove((ToolStripItem)sender);
+                if (item.Name.Contains("title_"))
+                {
+                    txt_contentID.SelectedText = $"<%=GetDataRowEditorValue(PageDr,\"{item.Name}\")%>";
+                }
+                else if (item.Name.Contains("word_"))
+                {
+                    txt_contentID.SelectedText = $"<%=GetDataRowEditorValue(PageDr,\"{item.Name}\").Replace(\"\r\n\",\"<br/>\")%>";
+                }
+                else if (item.Name.Contains("desc_"))
+                {
+                    txt_contentID.SelectedText = $"<%=Server.HtmlDecode(GetDataRowEditorValue(PageDr,\"{item.Name}\"))%>";
+                }
+                else {
+                    txt_contentID.SelectedText = $"<%=GetDataRowEditorValue(PageDr,\"{item.Name}\")%>";
+                }
+                //tools_addfiled.DropDownItems.Remove((ToolStripItem)sender);
             }
             catch (Exception ex)
             {
@@ -605,10 +619,10 @@ namespace Tools
         }
         private void quickCode_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control && e.KeyCode == Keys.Z)
-            {
-                txt_contentID.Text=txt_contentID.Text.Remove(txt_contentID.Text.Length - 1);
-            }
+            //if (e.Control && e.KeyCode == Keys.Z)
+            //{
+            //    txt_contentID.Text=txt_contentID.Text.Remove(txt_contentID.Text.Length - 1);
+            //}
         }
     }
 }
