@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.TextEditor">
+      <HintPath>..\ICSharpCode.TextEditor.3.2\ICSharpCode.TextEditor.dll</HintPath>
+    </Reference>
     <Reference Include="NPinyin">
       <HintPath>..\packages\NPinyin.0.2.6321.26573\lib\net20\NPinyin.dll</HintPath>
     </Reference>
