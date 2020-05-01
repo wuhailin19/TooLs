@@ -15,21 +15,7 @@ using NPinyin;
 /// </summary>
 namespace Tools
 {
-    public static class RichTextBoxExtension
-    {
-        public static void AppendTextColorful(this RichTextBox rtBox, string text, Color color, bool addNewLine = true)
-        {
-            if (addNewLine)
-            {
-                text += Environment.NewLine;
-            }
-            rtBox.SelectionStart = rtBox.TextLength;
-            rtBox.SelectionLength = 0;
-            rtBox.SelectionColor = color;
-            rtBox.AppendText(text);
-            rtBox.SelectionColor = rtBox.ForeColor;
-        }
-    }
+    
     public partial class quickCode : Form
     {
         public quickCode()
@@ -639,6 +625,21 @@ namespace Tools
             //{
             //    txt_contentID.Text=txt_contentID.Text.Remove(txt_contentID.Text.Length - 1);
             //}
+        }
+    }
+    public static class RichTextBoxExtension
+    {
+        public static void AppendTextColorful(this RichTextBox rtBox, string text, Color color, bool addNewLine = true)
+        {
+            if (addNewLine)
+            {
+                text += Environment.NewLine;
+            }
+            rtBox.SelectionStart = rtBox.TextLength;
+            rtBox.SelectionLength = 0;
+            rtBox.SelectionColor = color;
+            rtBox.AppendText(text);
+            rtBox.SelectionColor = rtBox.ForeColor;
         }
     }
 }
