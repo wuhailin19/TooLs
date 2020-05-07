@@ -23,25 +23,13 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-            this.txt_content = new System.Windows.Forms.TextBox();
             this.btn_submit = new System.Windows.Forms.Button();
             this.dt_datasource = new System.Windows.Forms.ComboBox();
             this.btn_getchinese = new System.Windows.Forms.Button();
             this.lbl_mark = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
+            this.txt_content = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
-            // 
-            // txt_content
-            // 
-            this.txt_content.Font = new System.Drawing.Font("微软雅黑", 12F);
-            this.txt_content.Location = new System.Drawing.Point(12, 12);
-            this.txt_content.Multiline = true;
-            this.txt_content.Name = "txt_content";
-            this.txt_content.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txt_content.Size = new System.Drawing.Size(520, 416);
-            this.txt_content.TabIndex = 0;
-            this.txt_content.TabStop = false;
-            this.txt_content.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_content_KeyDown);
             // 
             // btn_submit
             // 
@@ -93,17 +81,26 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // txt_content
+            // 
+            this.txt_content.Location = new System.Drawing.Point(12, 9);
+            this.txt_content.Name = "txt_content";
+            this.txt_content.Size = new System.Drawing.Size(525, 405);
+            this.txt_content.TabIndex = 55;
+            this.txt_content.Text = "";
+            this.txt_content.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txt_content_KeyDown);
+            // 
             // InsertColumns
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(690, 438);
+            this.Controls.Add(this.txt_content);
             this.Controls.Add(this.lbl_mark);
             this.Controls.Add(this.btn_getchinese);
             this.Controls.Add(this.dt_datasource);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.btn_submit);
-            this.Controls.Add(this.txt_content);
             this.Name = "InsertColumns";
             this.Text = "InsertColumns";
             this.ResumeLayout(false);
@@ -112,12 +109,11 @@
 		}
 
 		#endregion
-
-		private System.Windows.Forms.TextBox txt_content;
 		private System.Windows.Forms.Button btn_submit;
 		private System.Windows.Forms.ComboBox dt_datasource;
 		private System.Windows.Forms.Button btn_getchinese;
 		private System.Windows.Forms.Label lbl_mark;
 		private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.RichTextBox txt_content;
     }
 }

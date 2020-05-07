@@ -57,7 +57,7 @@ namespace Tools
             string[] strs = null;
             Hashtable hash = new Hashtable();
             string content_strs = txt_content.Text;
-            strs = content_strs.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            strs = content_strs.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
             if (strs != null)
             {
                 string guidid = null;
@@ -144,7 +144,7 @@ namespace Tools
             string content_strs = txt_content.Text;
             Hashtable newhash = new Hashtable();
             Hashtable namehash = new Hashtable();
-            string[] strs = content_strs.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            string[] strs = content_strs.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
             if (strs != null)
             {
                 string guidid = null;
@@ -176,26 +176,26 @@ namespace Tools
         //string guidid = strs[i][0].ToString();
         //int num = Convert.ToInt32(guidid);
         //if (guidid == "1") {
-        //	family += "" + "\r\n";
+        //	family += "" + "\n";
         //}
         ////else if (guidid != lastguid) {
         ////	dlastfamily = "," + GetFamilyValue(val, num, i, null);
-        ////	family += dlastfamily + "\r\n";
+        ////	family += dlastfamily + "\n";
         ////}
         //else if (guidid == lastguid) {
-        //	family += lastfamily + "\r\n";
+        //	family += lastfamily + "\n";
         //}
         //else if (Convert.ToInt32(guidid) > Convert.ToInt32(lastguid)) {
         //	dlastfamily = "," + GetFamilyValue(val, num, i, null);
-        //	family += dlastfamily + "\r\n";
+        //	family += dlastfamily + "\n";
         //}
         //else if (Convert.ToInt32(guidid) < Convert.ToInt32(lastguid)) {
         //	dlastfamily = "," + GetFamilyValue(val, num, i, null);
-        //	family += dlastfamily + "\r\n";
+        //	family += dlastfamily + "\n";
         //}
         //lastguid = guidid;
         //lastfamily = dlastfamily;
-        //txt_content.Text = content_strs + "\r\n" + family;
+        //txt_content.Text = content_strs + "\n" + family;
         //字符串翻转
         public string getnewstring(string strs)
         {
@@ -240,13 +240,15 @@ namespace Tools
             {
                 if (e.Control && e.KeyCode == Keys.D1)//按下ctrl+1
                 {
-                    string str = GetNewStringUp(txt_content.SelectedText);
-                    this.txt_content.SelectedText = str;
+                    string selectcont = txt_content.SelectedText;
+                    string str = GetNewStringUp(selectcont);
+                    txt_content.SelectedText = str;
                 }
                 if (e.Control && e.KeyCode == Keys.D2)//按下ctrl+2
                 {
-                    string str = GetNewStringDown(txt_content.SelectedText);
-                    this.txt_content.SelectedText = str;
+                    string selectcont = txt_content.SelectedText;
+                    string str = GetNewStringDown(selectcont);
+                    txt_content.SelectedText = str;
                 }
             }
             catch (Exception ex)
@@ -278,7 +280,7 @@ namespace Tools
             if (!string.IsNullOrEmpty(newstring))
             {
                 string relcontent = newstring;
-                newcontent = relcontent.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+                newcontent = relcontent.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 if (newcontent != null)
                 {
                     string newstr = null;
@@ -293,8 +295,8 @@ namespace Tools
                             {
                                 newcontent[i] = newcontent[i].Remove(0, 1);
                             }
-                            newstr = newcontent[i].Replace(newcontent[i], "-" + newcontent[i] + "\r\n");
-                            newstr = GetStringCount(newstr, '-') + newstr;
+                            newstr = newcontent[i].Replace(newcontent[i], "-" + newcontent[i]);
+                            newstr = GetStringCount(newstr, '-') + newstr + System.Environment.NewLine;
                         }
                         else
                         {
@@ -315,7 +317,7 @@ namespace Tools
             if (!string.IsNullOrEmpty(newstring))
             {
                 string relcontent = newstring;
-                newcontent = relcontent.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+                newcontent = relcontent.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 if (newcontent != null)
                 {
                     string newstr = null;
@@ -331,13 +333,13 @@ namespace Tools
                                 newcontent[i] = newcontent[i].Remove(0, 1);
                                 if (newcontent[i].Split('-').Length > 1)
                                 {
-                                    newstr = newcontent[i].Remove(newcontent[i].IndexOf('-'), 1) + "\r\n";
-                                    newstr = GetStringCount(newstr, '-') + newstr;
+                                    newstr = newcontent[i].Remove(newcontent[i].IndexOf('-'), 1);
+                                    newstr = GetStringCount(newstr, '-') + newstr + System.Environment.NewLine;
                                 }
                             }
                             else
                             {
-                                newstr = newcontent[i] + "\r\n";
+                                newstr = newcontent[i] + System.Environment.NewLine;
                             }
                         }
                         else
@@ -391,8 +393,8 @@ namespace Tools
             {
                 return " ";
             }
-            newstring = Regex.Replace(newstring, "\\s{2,}", "\r\n");
-            //newstring = newstring.Substring(0, newstring.LastIndexOf("\r\n"));
+            newstring = Regex.Replace(newstring, "\\s{2,}", System.Environment.NewLine);
+            //newstring = newstring.Substring(0, newstring.LastIndexOf("\n"));
             newstring = newstring.TrimStart('\r').TrimStart('\n').TrimEnd('\r').TrimEnd('\n');
             return newstring;
         }

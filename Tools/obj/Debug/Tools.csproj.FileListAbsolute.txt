@@ -87,8 +87,6 @@ E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.csproj.CopyComplete
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.exe
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.pdb
-E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.csprojAssemblyReference.cache
-E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.RichTextBoxExtension.resources
 E:\工作\wuhailin19\Tools\bin\Debug\Tools.exe
 E:\工作\wuhailin19\Tools\bin\Debug\Tools.pdb
 E:\工作\wuhailin19\Tools\bin\Debug\NPinyin.dll
@@ -106,3 +104,6 @@ E:\工作\wuhailin19\Tools\obj\Debug\Tools.csproj.CopyComplete
 E:\工作\wuhailin19\Tools\obj\Debug\Tools.exe
 E:\工作\wuhailin19\Tools\obj\Debug\Tools.pdb
 E:\工作\wuhailin19\Tools\bin\Debug\ICSharpCode.TextEditor.dll
+E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\ICSharpCode.TextEditor.dll
+E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.quickCode.resources
+E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.csprojAssemblyReference.cache

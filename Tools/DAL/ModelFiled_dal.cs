@@ -63,7 +63,7 @@ namespace Tools
             sbr.Append("目前字段：\r\n");
             foreach (ModelFiled model in modellist)
             {
-                sbr.Append(model.FiledName + $"            {model.Alias}\r\n");
+                sbr.Append(model.FiledName + $"            {model.Alias}          {model.Description}\r\n");
             }
             
             StringBuilder sb = new StringBuilder();

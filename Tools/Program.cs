@@ -12,7 +12,7 @@ namespace Tools {
 		static void Main() {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new quickCode());
+			Application.Run(new DataTools());
 		}
 	}
 }

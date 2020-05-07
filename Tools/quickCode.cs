@@ -23,27 +23,32 @@ namespace Tools
             InitializeComponent();
             txt_contentID.Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy("HTML");
             txt_contentID.Encoding = System.Text.Encoding.Default;
+
+            txt_contentextension.Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy("C#");
+            txt_contentextension.Encoding = System.Text.Encoding.Default;
         }
         private void button2_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog openfolder = new FolderBrowserDialog();
-            openfolder.ShowDialog();
-            textBox3.Text = openfolder.SelectedPath;
-            try
+            if (openfolder.ShowDialog() == DialogResult.OK)
             {
-                DataTable dt = ListToDataTable(readHtmlPageByPath(textBox3.Text));
-                page_select.DataSource = dt;
-                page_select.DisplayMember = "Value";
-                page_select.ValueMember = "Key";
-                page_select.Text = dt.Rows[0]["Value"].ToString();
+                textBox3.Text = openfolder.SelectedPath;
+                try
+                {
+                    DataTable dt = ListToDataTable(readHtmlPageByPath(textBox3.Text));
+                    page_select.DataSource = dt;
+                    page_select.DisplayMember = "Value";
+                    page_select.ValueMember = "Key";
+                    page_select.Text = dt.Rows[0]["Value"].ToString();
 
-                string websitename = textBox3.Text.Substring(textBox3.Text.LastIndexOf("\\") + 1);
-                string datatbasename = getdatabasename(websitename);
-                database_select.Text = datatbasename;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
+                    string websitename = textBox3.Text.Substring(textBox3.Text.LastIndexOf("\\") + 1);
+                    string datatbasename = getdatabasename(websitename);
+                    database_select.Text = datatbasename;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
         }
         private void btn_testlink_Click(object sender, EventArgs e)
@@ -67,21 +72,34 @@ namespace Tools
         }
         private void page_select_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string names = textBox3.Text + "\\" + page_select.Text;
-            StreamReader sr = File.OpenText(names);
-            while (sr.EndOfStream != true)
+            try
             {
-                txt_contentID.Text = sr.ReadToEnd().ToString();
+                string names = textBox3.Text + "\\" + page_select.Text;
+                StreamReader sr = File.OpenText(names);
+                while (sr.EndOfStream != true)
+                {
+                    txt_contentID.Text = sr.ReadToEnd().ToString();
+                }
+                sr.Dispose();
             }
-            sr.Dispose();
+            catch
+            {
+            }
+            button4_Click(sender, e);
         }
         private void cesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
         }
         private void quickCode_Load(object sender, EventArgs e)
         {
             BindDropDownList();
+            Init();
+        }
+        /// <summary>
+        /// 初始化窗体
+        /// </summary>
+        private void Init()
+        {
             Hashtable hash = new Hashtable();
             hash.Add("TextType", "单行文本框");
             hash.Add("MultipleTextType", "多行文本框");
@@ -100,11 +118,14 @@ namespace Tools
             hashs.Add("", "普通");
             hashs.Add("en", "英文");
             hashs.Add("linkurl_", "链接");
+            hashs.Add("bg", "背景图片");
+
             type_select.DataSource = HashToDataTable(hashs);
             type_select.DisplayMember = "Value";
             type_select.ValueMember = "Key";
             type_select.Text = "普通";
 
+            pagedr_select.Text = "PageDr";
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -125,7 +146,7 @@ namespace Tools
                     str = "master";
                 }
                 BindDropDounlists(str);
-                DropDownList3.Text = tablename;
+                table_select.Text = tablename;
             }
         }
         private void DropDownList2_SelectedIndexChanged(object sender, EventArgs e)
@@ -143,7 +164,7 @@ namespace Tools
             ModelFiled model = new ModelFiled();
             int count = 0;
             string filedtype = fileds_select.SelectedValue.ToString();
-            int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + DropDownList3.Text + "'", "ModelId")["ModelId"]);
+            int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.Text + "'", "ModelId")["ModelId"]);
             try
             {
                 #region 控件判断
@@ -201,9 +222,29 @@ namespace Tools
                     case "PicType":
                         model.Content = "";
                         model.Type = "PicType";
-                        count = ModelFiled_dal.GetFiledCount(modelid, "img");
-                        model.Alias = "图片" + NumberToChinese(count + 1);
-                        model.FiledName = "img_" + NumberToEnglish(count + 1);
+                        string img_w_h = null;//图片尺寸
+                        string imgfile = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+                        try
+                        {
+                            img_w_h = getimgswidthandheight(textBox3.Text + "\\" + imgfile);
+                            model.Description = $"图片尺寸({img_w_h})";
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                        if (type_select.Text == "背景图片")
+                        {
+                            count = ModelFiled_dal.GetFiledCount(modelid, "bgimg");
+                            model.Alias = "背景图片" + NumberToChinese(count + 1);
+                            model.FiledName = type_select.SelectedValue + "img_" + NumberToEnglish(count + 1);
+                        }
+                        else
+                        {
+                            count = ModelFiled_dal.GetFiledCount(modelid, "img");
+                            model.Alias = "图片" + NumberToChinese(count + 1);
+                            model.FiledName = "img_" + NumberToEnglish(count + 1);
+                        }
                         model.Validation = "";
                         break;
                     case "FileType":
@@ -232,7 +273,6 @@ namespace Tools
                         break;
                 }
                 #endregion
-                model.Description = "";
                 model.AddTime = DateTime.Now;
                 model.ModelId = modelid;
                 model.OrderId = ModelFiled_dal.GetTopOrderID("ModelFiled");
@@ -240,7 +280,8 @@ namespace Tools
                 //生成modelhtml
                 StringBuilder sbr = new StringBuilder();
                 ModelFiled_dal.CreateModelHTML(model.ModelId, ref sbr);
-                txt_contentID.Text = sbr.ToString();
+                txt_contentextension.Text = sbr.ToString();
+                txt_contentextension.ActiveTextAreaControl.Caret.Line = sbr.Length;
             }
             catch (Exception ex)
             {
@@ -248,6 +289,28 @@ namespace Tools
             }
         }
         #region 页面所用方法
+        /// <summary>
+        /// 获取图片宽高像素
+        /// </summary>
+        /// <param name="filre"></param>
+        /// <returns></returns>
+        public static string getimgswidthandheight(string filre)
+        {
+            if (!string.IsNullOrEmpty(filre))
+            {
+                try
+                {
+                    System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(filre);
+                    string newstr = bitmap.Width + "*" + bitmap.Height;
+                    return newstr;
+                }
+                catch(Exception ex)
+                {
+                    return "";
+                }
+            }
+            return "";
+        }
         /// <summary>
         /// 数字转中文
         /// </summary>
@@ -401,10 +464,10 @@ namespace Tools
                 dt = DBHelper.GetDataSet("use " + database + " select ROW_NUMBER() over(order by name asc) as OrderId,name from sys.tables where is_ms_shipped = 0 order by name asc");
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    DropDownList3.DataSource = dt;
-                    DropDownList3.DisplayMember = "name";
-                    DropDownList3.ValueMember = "OrderId";
-                    DropDownList3.Text = dt.Rows[0]["name"].ToString();
+                    table_select.DataSource = dt;
+                    table_select.DisplayMember = "name";
+                    table_select.ValueMember = "OrderId";
+                    table_select.Text = dt.Rows[0]["name"].ToString();
                 }
             }
             catch (Exception ex)
@@ -555,9 +618,10 @@ namespace Tools
                 for (int i = 0; i < filenames.Length; i++)
                 {
                     filename = filenames[i].ToString();
-                    extension = Path.GetExtension(filename);
+                    extension = Path.GetExtension(filename).ToLower();
                     name = filename.Substring(filename.LastIndexOf("\\") + 1).ToLower();
-                    if (extension == ".aspx" || extension == ".html")
+
+                    if (extension == ".aspx" || extension == ".html" || extension == ".master")
                     {
                         s_list.Add(name);
                     }
@@ -570,7 +634,6 @@ namespace Tools
             return s_list;
         }
         #endregion
-
         private void DropDownList3_SelectedIndexChanged(object sender, EventArgs e)
         {
             try
@@ -582,7 +645,7 @@ namespace Tools
                 toolStripItemf.Click += contextMenuStrip1_ItemClick;
                 tools_addfiled.DropDownItems.Add(toolStripItemf);
 
-                int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + DropDownList3.Text + "'", "ModelId")["ModelId"]);
+                int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.Text + "'", "ModelId")["ModelId"]);
                 IList<ModelFiled> modellist = ModelFiled_dal.GetModelList(modelid);
                 foreach (ModelFiled model in modellist)
                 {
@@ -599,30 +662,30 @@ namespace Tools
 
             }
         }
-
         private void contextMenuStrip1_ItemClick(object sender, EventArgs e)
         {
             ToolStripItem item = (ToolStripItem)sender;
             string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
             txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
             txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+            string pagedr = pagedr_select.Text;
             try
             {
                 if (item.Name.Contains("title_"))
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=GetDataRowEditorValue(PageDr,\"{item.Name}\")%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=GetDataRowsValue({pagedr},\"{item.Name}\")%>");
                 }
                 else if (item.Name.Contains("word_"))
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=GetDataRowEditorValue(PageDr,\"{item.Name}\").Replace(\"\r\n\",\"<br/>\")%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=GetDataRowsValue({pagedr},\"{item.Name}\").Replace(\"\r\n\",\"<br/>\")%>");
                 }
                 else if (item.Name.Contains("desc_"))
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=Server.HtmlDecode(GetDataRowEditorValue(PageDr,\"{item.Name}\"))%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=Server.HtmlDecode(GetDataRowsValue({pagedr},\"{item.Name}\"))%>");
                 }
                 else
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=GetDataRowEditorValue(PageDr,\"{item.Name}\")%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%=GetDataRowsValue({pagedr},\"{item.Name}\")%>");
                 }
             }
             catch (Exception ex)
@@ -637,33 +700,110 @@ namespace Tools
             //    txt_contentID.Text=txt_contentID.Text.Remove(txt_contentID.Text.Length - 1);
             //}
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
             txt_contentID.Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy("HTML");
         }
-
         private void button5_Click(object sender, EventArgs e)
         {
             txt_contentID.Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy("C#");
         }
-    }
-    public static class RichTextBoxExtension
-    {
-        public static void AppendTextColorful(this RichTextBox rtBox, string text, Color color, bool addNewLine = true)
+        private void button6_Click(object sender, EventArgs e)
         {
-            if (addNewLine)
+            page_select_SelectedIndexChanged(sender, e);
+            DropDownList3_SelectedIndexChanged(sender, e);
+        }
+        private void button7_Click(object sender, EventArgs e)
+        {
+            try
             {
-                text += Environment.NewLine;
+                string names = textBox3.Text + "\\" + page_select.Text + ".cs";
+                StreamReader sr = File.OpenText(names);
+                while (sr.EndOfStream != true)
+                {
+                    txt_contentID.Text = sr.ReadToEnd().ToString();
+                }
+                sr.Dispose();
+                button5_Click(sender, e);
             }
-            rtBox.SelectionStart = rtBox.TextLength;
-            rtBox.SelectionLength = 0;
-            rtBox.SelectionColor = color;
-            rtBox.AppendText(text);
-            rtBox.SelectionColor = rtBox.ForeColor;
+            catch
+            {
+                txt_contentID.Text = "";
+            }
+        }
+        private void button8_Click(object sender, EventArgs e)
+        {
+            string str = GetEasyFieldsNewString(table_select.Text);
+            txt_contentextension.Text = str;
+        }
+        /// <summary>
+        /// 生成精简字段字符串
+        /// </summary>
+        /// <summary>
+        /// <returns></returns>
+        public string GetEasyFieldsNewString(string Tablename)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            string swhere = null;//读取数据条件
+            string orderby = null;//排序方式
+            string helperclass = null;//使用方法类
+            string pagehtml = null;//单行数据使用PageDr多行Repeater
+            DataTable dt = null;
+            if (Tablename == "Article")
+            {
+                stringBuilder.Append("int recount=0;\r\n");
+                stringBuilder.Append("int pageindex=1;\r\n");
+                stringBuilder.Append("int pagesize=8;\r\n");
+                stringBuilder.Append("if(Request[\"page\"]!=null);\r\n");
+                stringBuilder.Append("{\r\n");
+                stringBuilder.Append("pageindex=WebUtility.getparam(\"page\");\r\n");
+                stringBuilder.Append("}\r\n");
+                helperclass = "Commonoperate.";
+            }
+            //筛选不需要的字段
+            string fild = "SystemId,Hits,KeyWord,Description,IsTop,IsRecommend,IsHot,IsSlide,IsColor,OrderId,AddUserName,LastEditUserName,LastEditDate,CheckedLevel";
+            string[] filds = fild.Split(',');
+            stringBuilder.Append($"dt = {helperclass}GetDataList(\"{Tablename}\", \"");
+
+            dt = DBHelper.GetDataSet($"Select Name FROM SysColumns Where id=Object_Id('{Tablename}') order by colid asc");
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (!filds.Contains(dr["Name"].ToString()))
+                {
+                    stringBuilder.Append("" + dr["Name"] + ",");
+                }
+            }
+            stringBuilder.Remove(stringBuilder.Length - 1, 1);
+            if (Tablename == "Article")
+                orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
+            else
+                orderby = "OrderId desc\");";
+            dt = DBHelper.GetDataSet("select distinct(ParentId)pid from " + Tablename + "");
+            if (dt.Rows.Count > 0)
+            {
+                if (dt.Rows.Count > 1)
+                {
+                    swhere = " and ParentId=\"+t";
+                    pagehtml = "Repeater_swipers.DataSource = dt;\r\n" +
+                    "Repeater_swipers.DataBind();\r\n";
+                }
+                else
+                {
+                    swhere = " and ParentId=" + dt.Rows[0]["pid"].ToString() + "\"";
+                    pagehtml = $"  {pagedr_select.Text}=dt.Rows[0];\r\n";
+                }
+            }
+            stringBuilder.Append($"\", \"IsColor=0{swhere}, \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,{orderby}\r\n");
+            stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\r\n");
+            stringBuilder.Append("{\r\n");
+            stringBuilder.Append(pagehtml);
+            stringBuilder.Append("}\r\n");
+            return stringBuilder.ToString();
         }
     }
-
+    /// <summary>
+    /// 自适应窗体
+    /// </summary>
     public class AutoResizeForm : Form
     {
         const int WM_SYSCOMMAND = 0X112;//274

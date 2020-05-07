@@ -713,8 +713,13 @@ namespace Tools
             }
             return stringBuilder.ToString();
         }
+
         #endregion
 
-
+        private void 快速开发ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            quickCode quickCode = new quickCode();
+            quickCode.Show();
+        }
     }
 }
