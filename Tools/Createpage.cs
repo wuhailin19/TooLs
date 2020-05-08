@@ -104,7 +104,7 @@ namespace Tools
                         "using System.Data;\r\n\r\n" +
                         "public partial class " + name + " : PageDataBind\r\n" +
                         "{\r\n" +
-                        "//public string firstPbanner = string.Empty, firstPageName = string.Empty, firstEnglishName = string.Empty, nowPbanner = string.Empty, nowPageName = string.Empty, nowPageEnglishName = string.Empty;\r\n" +
+                        "    //public string firstPbanner = string.Empty, firstPageName = string.Empty, firstEnglishName = string.Empty, nowPbanner = string.Empty, nowPageName = string.Empty, nowPageEnglishName = string.Empty;\r\n" +
                         "    //public StringBuilder Sbr_Page_Navbar = new StringBuilder();\r\n" +
                         "    //public DataRow PageDr = null;\r\n" +
                         "\r\n" +
@@ -120,17 +120,13 @@ namespace Tools
                         "//}\r\n" +
                         "protected void Page_Load(object sender, EventArgs e)\r\n" +
                         "{\r\n" +
-                        "try\r\n" +
+                        "   try\r\n" +
                         "        {\r\n" +
                         "            int t = WebUtility.getparam(\"t\");\r\n" +
                         "            if (t != 0)\r\n" +
                         "            {\r\n" +
                         "                setkeyword(t);\r\n" +
                         "                DataTable dt = null;\r\n" +
-                        "                if (dt != null && dt.Rows.Count > 0)\r\n" +
-                        "                {\r\n" +
-                        "\r\n" +
-                        "                }\r\n" +
                         "            }\r\n" +
                         "        }\r\n" +
                         "        catch\r\n" +
@@ -728,8 +724,13 @@ namespace Tools
                             Content = Content.Remove(0, counhe);
                             if (Content.Contains(FooterFirstdiv))
                             {
-                                int countt = Content.IndexOf(FooterFirstdiv);
-                                Content = Content.Substring(0, countt);
+                                Content = Content.Replace(FooterFirstdiv, "");
+                                //Content = Content.Substring(0, countt);
+                            }
+                            else
+                            {
+                                int countt = newFooter.Length;
+                                Content = Content.Remove(countt);
                             }
                         }
                         Content = Content.Replace("<tl:Head>", "");
@@ -744,7 +745,10 @@ namespace Tools
                 }
                 Content = Content.Replace("><", ">\r\n<");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
             return Content;
         }
         //格式化文件内容
@@ -761,7 +765,7 @@ namespace Tools
                 return;
             }
             htmlcontent = htmlcontent.Replace("\r\n", "");
-            htmlcontent = htmlcontent.Replace("  ", "").Replace("> <", "><").Replace(" />", "/>");
+            htmlcontent = htmlcontent.Replace("  ", " ").Replace("> <", "><").Replace(" />", "/>");
             //<head>头部内容
             try
             {

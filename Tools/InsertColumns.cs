@@ -19,7 +19,6 @@ namespace Tools
             InitializeComponent();
             BindDropDownList();
             lbl_mark.Text = "Ctrl+1为增加选中\r\n区域栏目等级;\r\n\r\nCtrl+2为减小选中\r\n区域栏目等级;";
-
         }
 
         //禁用Tab键
@@ -36,7 +35,7 @@ namespace Tools
         public void BindDropDownList()
         {
             DataTable dt = null;
-            dt = DBHelper.GetDataSet("select name,database_id from sys.databases");
+            dt = DBHelper.GetDataSet("select name,database_id from sys.databases order by create_date desc");
             if (dt != null && dt.Rows.Count > 0)
             {
                 dt_datasource.DataSource = dt;
@@ -242,12 +241,14 @@ namespace Tools
                 {
                     string selectcont = txt_content.SelectedText;
                     string str = GetNewStringUp(selectcont);
+                    txt_content.SelectedText="";
                     txt_content.SelectedText = str;
                 }
                 if (e.Control && e.KeyCode == Keys.D2)//按下ctrl+2
                 {
                     string selectcont = txt_content.SelectedText;
                     string str = GetNewStringDown(selectcont);
+                    txt_content.SelectedText = "";
                     txt_content.SelectedText = str;
                 }
             }

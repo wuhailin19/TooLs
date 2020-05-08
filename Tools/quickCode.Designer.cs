@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tools_repeater = new System.Windows.Forms.ToolStripMenuItem();
+            this.tools_common = new System.Windows.Forms.ToolStripMenuItem();
             this.tools_addfiled = new System.Windows.Forms.ToolStripMenuItem();
             this.type_select = new System.Windows.Forms.ComboBox();
             this.button3 = new System.Windows.Forms.Button();
@@ -61,28 +61,32 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.txt_contentID = new ICSharpCode.TextEditor.TextEditorControl();
             this.txt_contentextension = new ICSharpCode.TextEditor.TextEditorControl();
+            this.label9 = new System.Windows.Forms.Label();
+            this.txt_filedname = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tools_repeater,
+            this.tools_common,
             this.tools_addfiled});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(130, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(137, 48);
             // 
-            // tools_repeater
+            // tools_common
             // 
-            this.tools_repeater.Name = "tools_repeater";
-            this.tools_repeater.Size = new System.Drawing.Size(129, 22);
-            this.tools_repeater.Text = "Repeater";
-            this.tools_repeater.Click += new System.EventHandler(this.cesToolStripMenuItem_Click);
+            this.tools_common.Name = "tools_common";
+            this.tools_common.Size = new System.Drawing.Size(136, 22);
+            this.tools_common.Text = "母版页字段";
+            this.tools_common.Click += new System.EventHandler(this.cesToolStripMenuItem_Click);
             // 
             // tools_addfiled
             // 
             this.tools_addfiled.Name = "tools_addfiled";
-            this.tools_addfiled.Size = new System.Drawing.Size(129, 22);
+            this.tools_addfiled.Size = new System.Drawing.Size(136, 22);
             this.tools_addfiled.Text = "添加字段";
             // 
             // type_select
@@ -182,7 +186,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(60, 120);
+            this.label2.Location = new System.Drawing.Point(60, 118);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 12);
             this.label2.TabIndex = 62;
@@ -193,12 +197,11 @@
             this.table_select.BackColor = System.Drawing.SystemColors.Window;
             this.table_select.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.table_select.FormattingEnabled = true;
-            this.table_select.Location = new System.Drawing.Point(119, 116);
+            this.table_select.Location = new System.Drawing.Point(119, 114);
             this.table_select.Name = "table_select";
-            this.table_select.Size = new System.Drawing.Size(165, 20);
+            this.table_select.Size = new System.Drawing.Size(208, 20);
             this.table_select.TabIndex = 61;
             this.table_select.SelectedIndexChanged += new System.EventHandler(this.DropDownList3_SelectedIndexChanged);
-            this.table_select.SelectedValueChanged += new System.EventHandler(this.DropDownList3_SelectedIndexChanged);
             // 
             // label3
             // 
@@ -221,7 +224,6 @@
             this.database_select.Size = new System.Drawing.Size(165, 20);
             this.database_select.TabIndex = 59;
             this.database_select.SelectedIndexChanged += new System.EventHandler(this.DropDownList2_SelectedIndexChanged);
-            this.database_select.SelectedValueChanged += new System.EventHandler(this.DropDownList2_SelectedIndexChanged);
             // 
             // textBox3
             // 
@@ -271,12 +273,11 @@
             this.page_select.Size = new System.Drawing.Size(165, 20);
             this.page_select.TabIndex = 54;
             this.page_select.SelectedIndexChanged += new System.EventHandler(this.page_select_SelectedIndexChanged);
-            this.page_select.SelectedValueChanged += new System.EventHandler(this.page_select_SelectedIndexChanged);
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(328, 52);
+            this.label8.Location = new System.Drawing.Point(376, 52);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(59, 12);
             this.label8.TabIndex = 73;
@@ -284,7 +285,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(385, 46);
+            this.button4.Location = new System.Drawing.Point(433, 46);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(91, 23);
             this.button4.TabIndex = 74;
@@ -294,7 +295,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(482, 46);
+            this.button5.Location = new System.Drawing.Point(530, 46);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(91, 23);
             this.button5.TabIndex = 75;
@@ -324,7 +325,7 @@
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(290, 115);
+            this.button8.Location = new System.Drawing.Point(338, 113);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(97, 23);
             this.button8.TabIndex = 78;
@@ -342,14 +343,14 @@
             "PageDr2",
             "PageDr3",
             "PageDr4"});
-            this.pagedr_select.Location = new System.Drawing.Point(393, 116);
+            this.pagedr_select.Location = new System.Drawing.Point(441, 114);
             this.pagedr_select.Name = "pagedr_select";
             this.pagedr_select.Size = new System.Drawing.Size(92, 20);
             this.pagedr_select.TabIndex = 79;
             // 
             // panel1
             // 
-            this.panel1.Location = new System.Drawing.Point(302, 41);
+            this.panel1.Location = new System.Drawing.Point(378, 41);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(285, 38);
             this.panel1.TabIndex = 80;
@@ -376,11 +377,50 @@
             this.txt_contentextension.Size = new System.Drawing.Size(369, 500);
             this.txt_contentextension.TabIndex = 81;
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(830, 169);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(65, 12);
+            this.label9.TabIndex = 82;
+            this.label9.Text = "字段别名：";
+            // 
+            // txt_filedname
+            // 
+            this.txt_filedname.Location = new System.Drawing.Point(902, 169);
+            this.txt_filedname.Name = "txt_filedname";
+            this.txt_filedname.Size = new System.Drawing.Size(164, 21);
+            this.txt_filedname.TabIndex = 83;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(1072, 172);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(101, 12);
+            this.label10.TabIndex = 84;
+            this.label10.Text = "（为空使用默认）";
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(290, 52);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(60, 16);
+            this.checkBox1.TabIndex = 85;
+            this.checkBox1.Text = "母版页";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
             // quickCode
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1239, 764);
+            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.txt_filedname);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.txt_contentextension);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.pagedr_select);
@@ -414,6 +454,7 @@
             this.Name = "quickCode";
             this.Text = "quickCode";
             this.Load += new System.EventHandler(this.quickCode_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.quickCode_KeyDown_1);
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -422,7 +463,7 @@
 
         #endregion
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem tools_repeater;
+        private System.Windows.Forms.ToolStripMenuItem tools_common;
         private System.Windows.Forms.ToolStripMenuItem tools_addfiled;
         private System.Windows.Forms.ComboBox type_select;
         private System.Windows.Forms.Button button3;
@@ -453,5 +494,9 @@
         private System.Windows.Forms.Panel panel1;
         private ICSharpCode.TextEditor.TextEditorControl txt_contentID;
         private ICSharpCode.TextEditor.TextEditorControl txt_contentextension;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox txt_filedname;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }

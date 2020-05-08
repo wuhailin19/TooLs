@@ -179,7 +179,7 @@ namespace Tools
         public void BindDropDownList()
         {
             DataTable dt = null;
-            dt = DBHelper.GetDataSet("select name,database_id from sys.databases");
+            dt = DBHelper.GetDataSet("select name,database_id from sys.databases order by create_date desc");
             if (dt != null && dt.Rows.Count > 0)
             {
                 DropDownList2.DataSource = dt;
