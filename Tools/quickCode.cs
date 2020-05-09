@@ -526,6 +526,7 @@ namespace Tools
         /// <param name="e"></param>
         private void button6_Click(object sender, EventArgs e)
         {
+            IsBehideCode = false;
             page_select_SelectedIndexChanged(sender, e);
             DropDownList3_SelectedIndexChanged(sender, e);
         }
@@ -538,13 +539,17 @@ namespace Tools
         {
             try
             {
+                IsBehideCode = true;
                 string names = textBox3.Text + "\\" + page_select.Text + ".cs";
-                StreamReader sr = File.OpenText(names);
-                while (sr.EndOfStream != true)
+                if (File.Exists(names))
                 {
-                    txt_contentID.Text = sr.ReadToEnd().ToString();
+                    StreamReader sr = File.OpenText(names);
+                    while (sr.EndOfStream != true)
+                    {
+                        txt_contentID.Text = sr.ReadToEnd().ToString();
+                    }
+                    sr.Dispose();
                 }
-                sr.Dispose();
                 button5_Click(sender, e);
             }
             catch
@@ -844,6 +849,28 @@ namespace Tools
                 MessageBox.Show(ex.Message);
             }
         }
+        // <summary>
+        /// 绑定栏目列表
+        /// </summary>
+        public void BindColumnList()
+        {
+            try
+            {
+                DataTable dt = null;
+                dt = DBHelper.GetDataSet("select Id,Name from ColumnCategory order by OrderId asc");
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    this.column_select.DataSource = dt;
+                    this.column_select.DisplayMember = "Name";
+                    this.column_select.ValueMember = "Id";
+                    this.column_select.Text = dt.Rows[0]["Name"].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
         /// <summary>
         /// 添加模型
         /// </summary>
@@ -980,12 +1007,47 @@ namespace Tools
             return s_list;
         }
         #endregion
-
+        private bool IsBehideCode = false;//全局变量指示现在的代码是不是后台代码
         private void quickCode_KeyDown_1(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)//按下ctrl+s
             {
-                MessageBox.Show("保存成功");
+                string filenames = textBox3.Text + "\\" + page_select.Text;//文件路径
+                string content = txt_contentID.Text;
+                if (IsBehideCode)
+                {
+                    filenames = filenames + ".cs";
+                }
+                try
+                {
+                    if (File.Exists(filenames))
+                    {
+                        FileStream fs = new FileStream(filenames, FileMode.Create, FileAccess.Write);
+                        StreamWriter sw = new StreamWriter(fs);
+                        sw.WriteLine(content);
+                        sw.Close();
+                        fs.Close();
+                        MessageBox.Show("保存成功");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+        //模型栏目配对
+        private void button10_Click(object sender, EventArgs e)
+        {
+            string modelid = ModelFiled_dal.GetModelIdByExpression($"TableName={table_select.SelectedValue}", "ModelId")["ModelId"].ToString();
+            try
+            {
+                string sql = $"update ColumnCategory set ModelType={modelid} where ColumnId={column_select.SelectedValue}";
+                DBHelper.ExecuteCommand(sql);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }

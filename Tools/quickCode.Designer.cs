@@ -65,6 +65,8 @@
             this.txt_filedname = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.button10 = new System.Windows.Forms.Button();
+            this.column_select = new System.Windows.Forms.ComboBox();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -135,7 +137,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(50, 187);
+            this.label6.Location = new System.Drawing.Point(50, 177);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(65, 12);
             this.label6.TabIndex = 68;
@@ -143,7 +145,7 @@
             // 
             // txt_tabledesc
             // 
-            this.txt_tabledesc.Location = new System.Drawing.Point(119, 183);
+            this.txt_tabledesc.Location = new System.Drawing.Point(119, 173);
             this.txt_tabledesc.Name = "txt_tabledesc";
             this.txt_tabledesc.Size = new System.Drawing.Size(111, 21);
             this.txt_tabledesc.TabIndex = 67;
@@ -159,7 +161,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(236, 181);
+            this.button1.Location = new System.Drawing.Point(236, 171);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 65;
@@ -170,7 +172,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(59, 153);
+            this.label4.Location = new System.Drawing.Point(59, 146);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(53, 12);
             this.label4.TabIndex = 64;
@@ -178,7 +180,7 @@
             // 
             // txt_tablename
             // 
-            this.txt_tablename.Location = new System.Drawing.Point(119, 149);
+            this.txt_tablename.Location = new System.Drawing.Point(119, 142);
             this.txt_tablename.Name = "txt_tablename";
             this.txt_tablename.Size = new System.Drawing.Size(165, 21);
             this.txt_tablename.TabIndex = 63;
@@ -186,7 +188,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(60, 118);
+            this.label2.Location = new System.Drawing.Point(60, 115);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 12);
             this.label2.TabIndex = 62;
@@ -197,7 +199,7 @@
             this.table_select.BackColor = System.Drawing.SystemColors.Window;
             this.table_select.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.table_select.FormattingEnabled = true;
-            this.table_select.Location = new System.Drawing.Point(119, 114);
+            this.table_select.Location = new System.Drawing.Point(119, 111);
             this.table_select.Name = "table_select";
             this.table_select.Size = new System.Drawing.Size(208, 20);
             this.table_select.TabIndex = 61;
@@ -305,7 +307,7 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(133, 214);
+            this.button6.Location = new System.Drawing.Point(133, 204);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(75, 23);
             this.button6.TabIndex = 76;
@@ -315,7 +317,7 @@
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(52, 214);
+            this.button7.Location = new System.Drawing.Point(52, 204);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(75, 23);
             this.button7.TabIndex = 77;
@@ -325,7 +327,7 @@
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(338, 113);
+            this.button8.Location = new System.Drawing.Point(522, 110);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(97, 23);
             this.button8.TabIndex = 78;
@@ -343,7 +345,7 @@
             "PageDr2",
             "PageDr3",
             "PageDr4"});
-            this.pagedr_select.Location = new System.Drawing.Point(441, 114);
+            this.pagedr_select.Location = new System.Drawing.Point(625, 111);
             this.pagedr_select.Name = "pagedr_select";
             this.pagedr_select.Size = new System.Drawing.Size(92, 20);
             this.pagedr_select.TabIndex = 79;
@@ -412,11 +414,33 @@
             this.checkBox1.Text = "母版页";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(441, 110);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(75, 23);
+            this.button10.TabIndex = 87;
+            this.button10.Text = "选择此模型";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
+            // 
+            // column_select
+            // 
+            this.column_select.BackColor = System.Drawing.SystemColors.Window;
+            this.column_select.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.column_select.FormattingEnabled = true;
+            this.column_select.Location = new System.Drawing.Point(337, 111);
+            this.column_select.Name = "column_select";
+            this.column_select.Size = new System.Drawing.Size(92, 20);
+            this.column_select.TabIndex = 88;
+            // 
             // quickCode
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1239, 764);
+            this.Controls.Add(this.column_select);
+            this.Controls.Add(this.button10);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.txt_filedname);
@@ -498,5 +522,7 @@
         private System.Windows.Forms.TextBox txt_filedname;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.ComboBox column_select;
     }
 }

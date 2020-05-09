@@ -9,6 +9,7 @@ using NPinyin;
 using System.Xml;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Tools
 {
@@ -104,20 +105,20 @@ namespace Tools
                         "using System.Data;\r\n\r\n" +
                         "public partial class " + name + " : PageDataBind\r\n" +
                         "{\r\n" +
-                        "    //public string firstPbanner = string.Empty, firstPageName = string.Empty, firstEnglishName = string.Empty, nowPbanner = string.Empty, nowPageName = string.Empty, nowPageEnglishName = string.Empty;\r\n" +
-                        "    //public StringBuilder Sbr_Page_Navbar = new StringBuilder();\r\n" +
-                        "    //public DataRow PageDr = null;\r\n" +
+                        "    public string firstPbanner = string.Empty, firstPageName = string.Empty, firstEnglishName = string.Empty, nowPbanner = string.Empty, nowPageName = string.Empty, nowPageEnglishName = string.Empty;\r\n" +
+                        "    public StringBuilder Sbr_Page_Navbar = new StringBuilder();\r\n" +
+                        "    public DataRow PageDr = null;\r\n" +
                         "\r\n" +
-                        "    //protected void Page_LoadComplete(object sender, EventArgs e)\r\n" +
-                        "    //{\r\n" +
-                        "    //    firstPbanner = ((comm)Page.Master).firstPbanner;\r\n" +
-                        "    //    firstPageName = ((comm)Page.Master).firstPageName;\r\n" +
-                        "    //    firstEnglishName = ((comm)Page.Master).firstEnglishName;\r\n" +
-                        "    //    nowPbanner = ((comm)Page.Master).nowPbanner;\r\n" +
-                        "    //    nowPageName = ((comm)Page.Master).nowPageName;\r\n" +
-                        "    //    nowPageEnglishName = ((comm)Page.Master).nowPageEnglishName;\r\n" +
-                        "    //    Sbr_Page_Navbar = ((comm)Page.Master).Sbr_Page_Navbar;\r\n" +
-                        "//}\r\n" +
+                        "    protected void Page_LoadComplete(object sender, EventArgs e)\r\n" +
+                        "    {\r\n" +
+                        "        firstPbanner = ((comm)Page.Master).firstPbanner;\r\n" +
+                        "        firstPageName = ((comm)Page.Master).firstPageName;\r\n" +
+                        "        firstEnglishName = ((comm)Page.Master).firstEnglishName;\r\n" +
+                        "        nowPbanner = ((comm)Page.Master).nowPbanner;\r\n" +
+                        "        nowPageName = ((comm)Page.Master).nowPageName;\r\n" +
+                        "        nowPageEnglishName = ((comm)Page.Master).nowPageEnglishName;\r\n" +
+                        "        Sbr_Page_Navbar = ((comm)Page.Master).Sbr_Page_Navbar;\r\n" +
+                        "     }\r\n" +
                         "protected void Page_Load(object sender, EventArgs e)\r\n" +
                         "{\r\n" +
                         "   try\r\n" +
@@ -697,7 +698,7 @@ namespace Tools
         {
             string htmlcontent = ReadContentFromFile(htmlpath);
             htmlcontent = htmlcontent.Replace("\r\n", "");
-            htmlcontent = htmlcontent.Replace("  ", "");
+            htmlcontent = htmlcontent.Replace("  ", " ");
             string Content = null;
             //Content
             try
@@ -720,17 +721,12 @@ namespace Tools
                         }
                         else
                         {
-                            int counhe = newHeader.Length;
-                            Content = Content.Remove(0, counhe);
+                            //int counhe = newHeader.Length;
+                            //Content = Content.Remove(0, counhe);
                             if (Content.Contains(FooterFirstdiv))
                             {
                                 Content = Content.Replace(FooterFirstdiv, "");
                                 //Content = Content.Substring(0, countt);
-                            }
-                            else
-                            {
-                                int countt = newFooter.Length;
-                                Content = Content.Remove(countt);
                             }
                         }
                         Content = Content.Replace("<tl:Head>", "");
@@ -743,6 +739,7 @@ namespace Tools
                 {
                     Content = htmlcontent.Replace("\t", "").Replace("> <", "><");
                 }
+                Content = Content.Replace("</body>", "");
                 Content = Content.Replace("><", ">\r\n<");
             }
             catch (Exception ex)
