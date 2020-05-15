@@ -107,7 +107,7 @@
             this.comboBox3.Items.AddRange(new object[] {
             "获取dataTable行内元素",
             "生成精简字段字符串",
-            "生成字段字符串",
+            "父级Id字符串",
             "字符串转换(html-javascript)",
             "asp服务器代码",
             "Repeater代码",
@@ -249,42 +249,42 @@
             // 添加数据库ToolStripMenuItem
             // 
             this.添加数据库ToolStripMenuItem.Name = "添加数据库ToolStripMenuItem";
-            this.添加数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.添加数据库ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.添加数据库ToolStripMenuItem.Text = "添加数据库";
             this.添加数据库ToolStripMenuItem.Click += new System.EventHandler(this.添加数据库ToolStripMenuItem_Click);
             // 
             // 处理图片ToolStripMenuItem
             // 
             this.处理图片ToolStripMenuItem.Name = "处理图片ToolStripMenuItem";
-            this.处理图片ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.处理图片ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.处理图片ToolStripMenuItem.Text = "处理图片";
             this.处理图片ToolStripMenuItem.Click += new System.EventHandler(this.处理图片ToolStripMenuItem_Click);
             // 
             // 创建动态页面ToolStripMenuItem
             // 
             this.创建动态页面ToolStripMenuItem.Name = "创建动态页面ToolStripMenuItem";
-            this.创建动态页面ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.创建动态页面ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.创建动态页面ToolStripMenuItem.Text = "创建动态页面";
             this.创建动态页面ToolStripMenuItem.Click += new System.EventHandler(this.创建动态页面ToolStripMenuItem_Click);
             // 
             // 处理编译网站ToolStripMenuItem
             // 
             this.处理编译网站ToolStripMenuItem.Name = "处理编译网站ToolStripMenuItem";
-            this.处理编译网站ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.处理编译网站ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.处理编译网站ToolStripMenuItem.Text = "处理编译网站";
             this.处理编译网站ToolStripMenuItem.Click += new System.EventHandler(this.处理编译网站ToolStripMenuItem_Click);
             // 
             // 添加栏目ToolStripMenuItem
             // 
             this.添加栏目ToolStripMenuItem.Name = "添加栏目ToolStripMenuItem";
-            this.添加栏目ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.添加栏目ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.添加栏目ToolStripMenuItem.Text = "添加栏目";
             this.添加栏目ToolStripMenuItem.Click += new System.EventHandler(this.添加栏目ToolStripMenuItem_Click);
             // 
             // 快速开发ToolStripMenuItem
             // 
             this.快速开发ToolStripMenuItem.Name = "快速开发ToolStripMenuItem";
-            this.快速开发ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.快速开发ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.快速开发ToolStripMenuItem.Text = "快速开发";
             this.快速开发ToolStripMenuItem.Click += new System.EventHandler(this.快速开发ToolStripMenuItem_Click);
             // 

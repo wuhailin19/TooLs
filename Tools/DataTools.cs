@@ -40,7 +40,7 @@ namespace Tools
                     txt_resultID.Text = GetEasyFieldsNewString(DropDownList3.Text);
                     break;
                 case "2":
-                    txt_resultID.Text = GetFieldsNewString(DropDownList3.Text);
+                    txt_resultID.Text = GetParentIdString();
                     break;
                 case "3":
                     txt_resultID.Text = Htmlstringtojsstring();
@@ -254,15 +254,15 @@ namespace Tools
                 stringBuilder.Append("int recount=0;\r\n");
                 stringBuilder.Append("int pageindex=1;\r\n");
                 stringBuilder.Append("int pagesize=8;\r\n");
-                stringBuilder.Append("if(Request[\"page\"]!=null);\r\n");
+                stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
                 stringBuilder.Append("{\r\n");
-                stringBuilder.Append("page=WebUtility.getparam(\"page\");\r\n");
+                stringBuilder.Append("pageindex=WebUtility.getparam(\"page\");\r\n");
                 stringBuilder.Append("}\r\n");
                 helperclass = "Commonoperate.";
             }
-            string filds = "SystemId,Hits,KeyWord,Description,IsTop,IsRecommend,IsHot,IsSlide,IsColor,OrderId,AddUserName,LastEditUserName,LastEditDate,CheckedLevel";
+            string fild = "SystemId,Hits,KeyWord,Description,IsTop,IsRecommend,IsHot,IsSlide,IsColor,OrderId,AddUserName,LastEditUserName,LastEditDate,CheckedLevel";
             stringBuilder.Append($"dt = {helperclass}GetDataList(\"{Tablename}\", \"");
-
+            string[] filds = fild.Split(',');
             dt = DBHelper.GetDataSet($"Select Name FROM SysColumns Where id=Object_Id('{Tablename}') order by colid asc");
             foreach (DataRow dr in dt.Rows)
             {
@@ -326,25 +326,24 @@ namespace Tools
         //}
 
         /// <summary>
-        /// case "2"：生成字段字符串
+        /// case "2"：父级Id字符串
         /// </summary>
         /// <returns></returns>
-        public string GetFieldsNewString(string Tablename)
+        public string GetParentIdString()
         {
             StringBuilder stringBuilder = new StringBuilder();
             DataTable dt = null;
-            stringBuilder.Append("dt = GetDataList(\"" + Tablename + "\", \"");
-            dt = DBHelper.GetDataSet("Select Name FROM SysColumns Where id=Object_Id('" + Tablename + "') order by colid asc");
+            dt = DBHelper.GetDataSet("select ColumnId from ColumnCategory where ParentId=0 and ColumnId<>1 order by orderid asc");
             foreach (DataRow dr in dt.Rows)
             {
-                stringBuilder.Append("" + dr["Name"] + ",");
+                stringBuilder.Append("" + dr["ColumnId"] + ",");
             }
             stringBuilder.Remove(stringBuilder.Length - 1, 1);
-
-            stringBuilder.Append("\", \"IsColor=0 and ParentId=\", \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,OrderId desc\");\r\n");
-            stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\r\n");
-            stringBuilder.Append("{\r\n");
-            stringBuilder.Append("}\r\n");
+            stringBuilder.Append("\r\n");
+            foreach (DataRow dr in dt.Rows)
+            {
+                stringBuilder.Append($"or Family like '%,{dr["ColumnId"]},%' ");
+            }
             return stringBuilder.ToString();
         }
         /// <summary>

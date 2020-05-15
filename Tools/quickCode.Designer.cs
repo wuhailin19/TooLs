@@ -67,6 +67,8 @@
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.button10 = new System.Windows.Forms.Button();
             this.column_select = new System.Windows.Forms.ComboBox();
+            this.txt_repeatername = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -172,7 +174,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(59, 146);
+            this.label4.Location = new System.Drawing.Point(59, 145);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(53, 12);
             this.label4.TabIndex = 64;
@@ -180,7 +182,7 @@
             // 
             // txt_tablename
             // 
-            this.txt_tablename.Location = new System.Drawing.Point(119, 142);
+            this.txt_tablename.Location = new System.Drawing.Point(119, 141);
             this.txt_tablename.Name = "txt_tablename";
             this.txt_tablename.Size = new System.Drawing.Size(165, 21);
             this.txt_tablename.TabIndex = 63;
@@ -434,11 +436,29 @@
             this.column_select.Size = new System.Drawing.Size(92, 20);
             this.column_select.TabIndex = 88;
             // 
+            // txt_repeatername
+            // 
+            this.txt_repeatername.Location = new System.Drawing.Point(522, 141);
+            this.txt_repeatername.Name = "txt_repeatername";
+            this.txt_repeatername.Size = new System.Drawing.Size(165, 21);
+            this.txt_repeatername.TabIndex = 89;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(439, 145);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(77, 12);
+            this.label11.TabIndex = 90;
+            this.label11.Text = "Repeater名：";
+            // 
             // quickCode
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1239, 764);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.txt_repeatername);
             this.Controls.Add(this.column_select);
             this.Controls.Add(this.button10);
             this.Controls.Add(this.checkBox1);
@@ -524,5 +544,7 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.ComboBox column_select;
+        private System.Windows.Forms.TextBox txt_repeatername;
+        private System.Windows.Forms.Label label11;
     }
 }

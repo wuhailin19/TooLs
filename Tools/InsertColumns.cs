@@ -384,8 +384,8 @@ namespace Tools
                 {
                     if (r.Match(str[i].ToString()).Success)
                         newstring += str[i].ToString();
-                    else if (r3.Match(str[i].ToString()).Success)
-                        newstring += str[i].ToString();
+                    //else if (r3.Match(str[i].ToString()).Success)
+                    //    newstring += str[i].ToString();
                     else
                         newstring += "  ";
                 }

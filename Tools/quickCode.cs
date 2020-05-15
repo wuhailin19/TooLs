@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -109,6 +110,7 @@ namespace Tools
             catch (Exception ex)
             {
             }
+            IsBehideCode = false;
             button4_Click(sender, e);
         }
         /// <summary>
@@ -200,6 +202,9 @@ namespace Tools
 
                 tools_common.DropDownItems.Add(toolStripItem);
             }
+
+            //初始化模型
+            BindColumnList();
         }
         /// <summary>
         /// 添加模型
@@ -285,7 +290,7 @@ namespace Tools
                             model.FiledName = type_select.SelectedValue + NumberToEnglish(count + 1);
                             if (string.IsNullOrEmpty(filedname))
                             {
-                                filedname = "英文标题" + NumberToChinese(count + 1);
+                                filedname = "链接" + NumberToChinese(count + 1);
                             }
                             model.Alias = filedname;
                         }
@@ -583,17 +588,77 @@ namespace Tools
             string orderby = null;//排序方式
             string helperclass = null;//使用方法类
             string pagehtml = null;//单行数据使用PageDr多行Repeater
-            DataTable dt = null;
-            if (Tablename == "Article")
+            string repeater_name = txt_repeatername.Text.Trim();
+            if (string.IsNullOrEmpty(repeater_name))
             {
-                stringBuilder.Append("int recount=0;\r\n");
-                stringBuilder.Append("int pageindex=1;\r\n");
-                stringBuilder.Append("int pagesize=8;\r\n");
-                stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
-                stringBuilder.Append("{\r\n");
-                stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\r\n");
-                stringBuilder.Append("}\r\n");
-                helperclass = "Commonoperate.";
+                repeater_name = "Repeater_newslist";
+            }
+            DataTable dt = null;
+            //if (Tablename == "Article")
+            //{
+            //    stringBuilder.Append("int recount=0;\r\n");
+            //    stringBuilder.Append("int pageindex=1;\r\n");
+            //    stringBuilder.Append("int pagesize=8;\r\n");
+            //    stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
+            //    stringBuilder.Append("{\r\n");
+            //    stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\r\n");
+            //    stringBuilder.Append("}\r\n");
+            //    helperclass = "Commonoperate.";
+            //}
+            if (Tablename == "Article")
+                orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
+            else
+                orderby = "OrderId desc\");";
+            dt = DBHelper.GetDataSet("select distinct(ParentId)pid from " + Tablename + "");
+            if (dt.Rows.Count > 0)
+            {
+                if (dt.Rows.Count > 1)
+                {
+                    stringBuilder.Append("int recount=0;\r\n");
+                    stringBuilder.Append("int pageindex=1;\r\n");
+                    stringBuilder.Append("int pagesize=8;\r\n");
+                    stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
+                    stringBuilder.Append("{\r\n");
+                    stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\r\n");
+                    stringBuilder.Append("}\r\n");
+                    orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
+                    swhere = " and ParentId=\"+t+\"";
+                    helperclass = "Commonoperate.";
+                    pagehtml =
+                        $"{repeater_name}.DataSource = dt;\r\n" +
+                        $"{repeater_name}.DataBind();\r\n";
+                }
+                else
+                {
+                    dt = DBHelper.GetDataSet("select count(ParentId)counts from " + Tablename + "");
+                    if (dt.Rows.Count > 0)
+                    {
+                        if (Convert.ToInt32(dt.Rows[0]["counts"]) > 1)
+                        {
+                            stringBuilder.Append("int recount=0;\r\n");
+                            stringBuilder.Append("int pageindex=1;\r\n");
+                            stringBuilder.Append("int pagesize=8;\r\n");
+                            stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
+                            stringBuilder.Append("{\r\n");
+                            stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\r\n");
+                            stringBuilder.Append("}\r\n");
+                            orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
+                            helperclass = "Commonoperate.";
+                            pagehtml =
+                                $"{repeater_name}.DataSource = dt;\r\n" +
+                                $"{repeater_name}.DataBind();\r\n";
+                        }
+                        else
+                        {
+                            pagehtml = $"  {pagedr_select.Text}=dt.Rows[0];\r\n";
+                        }
+                        dt = DBHelper.GetDataSet("select ParentId from " + Tablename + "");
+                        if (dt.Rows.Count > 0)
+                        {
+                            swhere = " and ParentId=" + dt.Rows[0]["ParentId"].ToString();
+                        }
+                    }
+                }
             }
             //筛选不需要的字段
             string fild = "SystemId,Hits,KeyWord,Description,IsTop,IsRecommend,IsHot,IsSlide,IsColor,OrderId,AddUserName,LastEditUserName,LastEditDate,CheckedLevel";
@@ -609,25 +674,6 @@ namespace Tools
                 }
             }
             stringBuilder.Remove(stringBuilder.Length - 1, 1);
-            if (Tablename == "Article")
-                orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
-            else
-                orderby = "OrderId desc\");";
-            dt = DBHelper.GetDataSet("select distinct(ParentId)pid from " + Tablename + "");
-            if (dt.Rows.Count > 0)
-            {
-                if (dt.Rows.Count > 1)
-                {
-                    swhere = " and ParentId=\"+t+\"";
-                    pagehtml = "Repeater_swipers.DataSource = dt;\r\n" +
-                    "Repeater_swipers.DataBind();\r\n";
-                }
-                else
-                {
-                    swhere = " and ParentId=" + dt.Rows[0]["pid"].ToString();
-                    pagehtml = $"  {pagedr_select.Text}=dt.Rows[0];\r\n";
-                }
-            }
             stringBuilder.Append($"\", \"IsColor=0{swhere}\", \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,{orderby}\r\n");
             stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\r\n");
             stringBuilder.Append("{\r\n");
@@ -857,12 +903,12 @@ namespace Tools
             try
             {
                 DataTable dt = null;
-                dt = DBHelper.GetDataSet("select Id,Name from ColumnCategory order by OrderId asc");
+                dt = DBHelper.GetDataSet($"use {database_select.Text} select ColumnId,Name from ColumnCategory order by OrderId asc");
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     this.column_select.DataSource = dt;
                     this.column_select.DisplayMember = "Name";
-                    this.column_select.ValueMember = "Id";
+                    this.column_select.ValueMember = "ColumnId";
                     this.column_select.Text = dt.Rows[0]["Name"].ToString();
                 }
             }
@@ -870,6 +916,38 @@ namespace Tools
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+        /// <summary>
+        /// 添加自定义模型数据
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="tablename"></param>
+        /// <returns></returns>
+        public bool Add(Hashtable table, string tablename)
+        {
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("insert into " + tablename + " (");
+            string key = "";
+            string keyvar = "";
+            foreach (DictionaryEntry myDE in table)
+            {
+                key += "[" + myDE.Key.ToString() + "],";
+                keyvar += "@" + myDE.Key.ToString() + ",";
+
+            }
+
+            builder.Append(key.Substring(0, key.Length - 1) + " ) values(" + keyvar.Substring(0, keyvar.Length - 1) + " )");
+
+            SqlParameter[] commandParameters = new SqlParameter[table.Count];
+            int num = 0;
+            foreach (DictionaryEntry myDE in table)
+            {
+                commandParameters[num] = new SqlParameter("@" + myDE.Key.ToString(), myDE.Value);
+                num++;
+            }
+
+            return DBHelper.ExecuteCommand(builder.ToString()) >= 1;
         }
         /// <summary>
         /// 添加模型
@@ -1008,6 +1086,7 @@ namespace Tools
         }
         #endregion
         private bool IsBehideCode = false;//全局变量指示现在的代码是不是后台代码
+        //Ctrl+s保存更改
         private void quickCode_KeyDown_1(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)//按下ctrl+s
@@ -1039,7 +1118,7 @@ namespace Tools
         //模型栏目配对
         private void button10_Click(object sender, EventArgs e)
         {
-            string modelid = ModelFiled_dal.GetModelIdByExpression($"TableName={table_select.SelectedValue}", "ModelId")["ModelId"].ToString();
+            string modelid = ModelFiled_dal.GetModelIdByExpression($"TableName='{table_select.SelectedValue}'", "ModelId")["ModelId"].ToString();
             try
             {
                 string sql = $"update ColumnCategory set ModelType={modelid} where ColumnId={column_select.SelectedValue}";
