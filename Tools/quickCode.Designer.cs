@@ -89,6 +89,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.tools_change = new System.Windows.Forms.ToolStripMenuItem();
             this.tools_createpage = new System.Windows.Forms.ToolStripMenuItem();
+            this.tools_stringbuilder = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -106,33 +107,34 @@
             this.tool_article,
             this.tools_repeater,
             this.置于顶层ToolStripMenuItem,
-            this.tools_codesql});
+            this.tools_codesql,
+            this.tools_stringbuilder});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(154, 136);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(188, 158);
             // 
             // tools_common
             // 
             this.tools_common.Name = "tools_common";
-            this.tools_common.Size = new System.Drawing.Size(153, 22);
+            this.tools_common.Size = new System.Drawing.Size(187, 22);
             this.tools_common.Text = "母版页字段";
             this.tools_common.Click += new System.EventHandler(this.cesToolStripMenuItem_Click);
             // 
             // tools_addfiled
             // 
             this.tools_addfiled.Name = "tools_addfiled";
-            this.tools_addfiled.Size = new System.Drawing.Size(153, 22);
+            this.tools_addfiled.Size = new System.Drawing.Size(187, 22);
             this.tools_addfiled.Text = "添加字段";
             // 
             // tool_article
             // 
             this.tool_article.Name = "tool_article";
-            this.tool_article.Size = new System.Drawing.Size(153, 22);
+            this.tool_article.Size = new System.Drawing.Size(187, 22);
             this.tool_article.Text = "新闻字段";
             // 
             // tools_repeater
             // 
             this.tools_repeater.Name = "tools_repeater";
-            this.tools_repeater.Size = new System.Drawing.Size(153, 22);
+            this.tools_repeater.Size = new System.Drawing.Size(187, 22);
             this.tools_repeater.Text = "嵌套Repeater";
             this.tools_repeater.Click += new System.EventHandler(this.tools_repeater_Click);
             // 
@@ -142,7 +144,7 @@
             this.tools_open,
             this.tools_close});
             this.置于顶层ToolStripMenuItem.Name = "置于顶层ToolStripMenuItem";
-            this.置于顶层ToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.置于顶层ToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.置于顶层ToolStripMenuItem.Text = "置于顶层";
             // 
             // tools_open
@@ -561,6 +563,7 @@
             this.button8.TabIndex = 78;
             this.button8.Text = "生成后端查询";
             this.button8.UseVisualStyleBackColor = true;
+            this.button8.Visible = false;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
             // button3
@@ -681,7 +684,7 @@
             // tools_codesql
             // 
             this.tools_codesql.Name = "tools_codesql";
-            this.tools_codesql.Size = new System.Drawing.Size(153, 22);
+            this.tools_codesql.Size = new System.Drawing.Size(187, 22);
             this.tools_codesql.Text = "生成后端查询";
             this.tools_codesql.Click += new System.EventHandler(this.tools_codesql_Click);
             // 
@@ -709,6 +712,13 @@
             this.tools_createpage.Size = new System.Drawing.Size(180, 22);
             this.tools_createpage.Text = "生成网站目录";
             this.tools_createpage.Click += new System.EventHandler(this.tools_createpage_Click);
+            // 
+            // tools_stringbuilder
+            // 
+            this.tools_stringbuilder.Name = "tools_stringbuilder";
+            this.tools_stringbuilder.Size = new System.Drawing.Size(187, 22);
+            this.tools_stringbuilder.Text = "转换为StringBuilder";
+            this.tools_stringbuilder.Click += new System.EventHandler(this.tools_stringbuilder_Click);
             // 
             // quickCode
             // 
@@ -803,5 +813,6 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem tools_change;
         private System.Windows.Forms.ToolStripMenuItem tools_createpage;
+        private System.Windows.Forms.ToolStripMenuItem tools_stringbuilder;
     }
 }

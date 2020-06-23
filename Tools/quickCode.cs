@@ -56,12 +56,68 @@ namespace Tools
                     txt_contentID.ActiveTextAreaControl.Caret.Line = Convert.ToInt32(inputtxt) - 1;
                 }
             }
-            else if (e.Control && e.KeyCode == Keys.K)//格式化代码
+            else if ((int)e.Modifiers == ((int)Keys.Control + (int)Keys.Alt) && e.KeyCode == Keys.D)//格式化代码
             {
                 button9_Click(sender, e);
             }
+            else if ((int)e.Modifiers == ((int)Keys.Control + (int)Keys.Alt) && e.KeyCode == Keys.C)//注释
+            {
+                string selecttxt = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+                txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+                txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+                txt_contentID.ActiveTextAreaControl.TextArea.InsertString(notesCode(selecttxt));
+            }
+            else if ((int)e.Modifiers == ((int)Keys.Control + (int)Keys.Alt) && e.KeyCode == Keys.V)//取消注释
+            {
+                string selecttxt = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+                txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+                txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+                txt_contentID.ActiveTextAreaControl.TextArea.InsertString(deletenotesCode(selecttxt));
+            }
         }
-
+        /// <summary>
+        /// 注释代码
+        /// </summary>
+        private string notesCode(string code)
+        {
+            StringBuilder sbr = new StringBuilder();
+            string[] lines = code.Split('\n').Length > 1 ? code.Split('\n') : code.Split('\r');
+            if (IsBehideCode)
+            {
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (i == 0)
+                        sbr.Append($"//{lines[i].Trim()}\n");
+                    else
+                        sbr.Append($"//{lines[i].Trim()}\n");
+                }
+            }
+            else
+            {
+                sbr.Append($"<!--{code}-->");
+            }
+            return sbr.ToString().TrimEnd('\n');
+        }/// <summary>
+         /// 取消注释代码
+         /// </summary>
+        private string deletenotesCode(string code)
+        {
+            StringBuilder sbr = new StringBuilder();
+            string[] lines = code.Split('\n').Length > 1 ? code.Split('\n') : code.Split('\r');
+            if (IsBehideCode)
+            {
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    sbr.Append($"{lines[i].Trim().TrimStart('/')}\n");
+                }
+            }
+            else
+            {
+                code = code.Replace("<!--", "").Replace("-->", "");
+                sbr.Append(code);
+            }
+            return sbr.ToString().TrimEnd('\n');
+        }
         public void myevent() => btn_testlink_Click(this, new EventArgs());
 
         /// <summary>
@@ -1456,6 +1512,15 @@ namespace Tools
         {
             Createpage create = new Createpage();
             create.Show();
+        }
+        /// <summary>
+        /// 转换字符串为stringbuilder
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_stringbuilder_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
