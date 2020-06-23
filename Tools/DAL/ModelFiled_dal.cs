@@ -21,18 +21,13 @@ namespace Tools
 
                 case "TextType":
                     string other = WebUtility.GetFieldContent(modey.Validation, 1, 1);
-                    if (other == "integer")
-                    {
-                        returntype = "int"; break;
-                    }
-                    else if (other == "currency")
-                    {
-                        returntype = "decimal(18,2)"; break;
-                    }
-                    else
-                    {
-                        returntype = "nvarchar(255)"; break;
-                    }
+                    returntype = 
+                        other == "integer" 
+                        ? "int"
+                        : other == "currency"
+                        ? "decimal(18,2)"
+                        : "nvarchar(255)";
+                    break;
                 case "MultipleTextType": returntype = "ntext"; break;
                 case "Editor": returntype = "ntext"; break;
                 case "eWebEditor": returntype = "ntext"; break;
@@ -54,18 +49,17 @@ namespace Tools
         /// <summary>
         ///  创建模型ModelHTML
         /// </summary>
-        public static void CreateModelHTML(int modeid,ref StringBuilder sbr)
+        public static void CreateModelHTML(int modeid, ref StringBuilder sbr)
         {
             //js
             bool isEditorscript = true, isFileUpload = true, isColorPicker = true, isProvincialLinkage = true, isDictionary = true, isRelevance = true; ;
             IList<ModelFiled> modellist = GetModelList(modeid);
-            
+
             sbr.Append("目前字段：\r\n");
             foreach (ModelFiled model in modellist)
             {
                 sbr.Append(model.FiledName + $"            {model.Alias}          {model.Description}\r\n");
             }
-            
             StringBuilder sb = new StringBuilder();
             foreach (ModelFiled model in modellist)
             {
@@ -76,7 +70,6 @@ namespace Tools
                         isEditorscript = false;
                         sb.Append("<script src=\"htmlEditor/_ueditor/editor_config.js\" type=\"text/javascript\"></script><script src=\"htmlEditor/_ueditor/editor_all.js\" type=\"text/javascript\"></script>");
                         sb.Append("<tr class=\"editor\"><td width=\"18%\" style=\"text-align:right; padding-right:10px;\">" + model.Alias + ":</td>");
-
                     }
                     else
                     {
@@ -194,28 +187,19 @@ namespace Tools
         {
             string sql = $"select count(FiledId) Fcount from ModelFiled where FiledName like'%{filedname}%' and ModelId={modelid}";
             DataTable dt = DBHelper.GetDataSet(sql);
-            if (dt.Rows.Count > 0 && dt.Rows != null)
-            {
-                return Convert.ToInt32(dt.Rows[0]["Fcount"]);
-            }
-            else
-            {
-                return 0;
-            }
+
+            return dt.Rows.Count > 0 && dt.Rows != null
+                ? Convert.ToInt32(dt.Rows[0]["Fcount"])
+                : 0;
         }
         //根据表名获取ContentModel字段
         public static DataRow GetModelIdByExpression(string swhere, string filed)
         {
             string sql = $"select {filed} from ContentModel where {swhere}";
             DataTable dt = DBHelper.GetDataSet(sql);
-            if (dt.Rows.Count > 0 && dt.Rows != null)
-            {
-                return dt.Rows[0];
-            }
-            else
-            {
-                return null;
-            }
+            return dt.Rows.Count > 0 && dt.Rows != null
+                ? dt.Rows[0]
+                : null;
         }
 
         /// <summary>
@@ -224,7 +208,7 @@ namespace Tools
         /// <returns>int</returns>
         public static int GetTopOrderID(string tablename)
         {
-            string sql = "";
+            string sql = null;
 
             sql = "SELECT top 1 orderid from " + tablename + " order by orderid desc";
             DataTable dt = DBHelper.GetDataSet(sql);

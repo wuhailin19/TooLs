@@ -1,33 +1,69 @@
-﻿using System;
+﻿using ICSharpCode.TextEditor;
+using ICSharpCode.TextEditor.Document;
+using NPinyin;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using ICSharpCode.TextEditor.Document;
-using NPinyin;
 
 /// <summary>
 /// 快速开发
 /// </summary>
 namespace Tools
 {
-    public partial class quickCode : AutoResizeForm
+    public partial class quickCode : Form
     {
-        public quickCode()
+        private Dictionary<string, string> default_fileds = new Dictionary<string, string>();//数据表默认数据
+        private Dictionary<string, string> insert_fileds = new Dictionary<string, string>();//数据表新增数据
+        private string webpath = null;//网站路径
+        public quickCode(string strs)
         {
+            webpath = strs;
+
             InitializeComponent();
+
+            InitTextEditor();
+        }
+        /// <summary>
+        /// 初始化控件
+        /// </summary>
+        private void InitTextEditor()
+        {
             txt_contentID.Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy("HTML");
-            txt_contentID.Encoding = System.Text.Encoding.Default;
+            txt_contentID.Encoding = Encoding.UTF8;
+            txt_contentID.Font = new System.Drawing.Font("微软雅黑", 12);
+            txt_contentID.Document.FoldingManager.FoldingStrategy = new MingHTMLFolding();
+            txt_contentID.ActiveTextAreaControl.TextArea.KeyDown += new System.Windows.Forms.KeyEventHandler(TextArea_KeyDown); ;
 
             txt_contentextension.Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy("C#");
-            txt_contentextension.Encoding = System.Text.Encoding.Default;
+            txt_contentextension.Encoding = System.Text.Encoding.UTF8;
         }
+
+
+        private void TextArea_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.G)
+            {
+                string inputtxt = InputBox.ShowInputBox("请输入行数：");
+                int line = !string.IsNullOrEmpty(inputtxt) ? Convert.ToInt32(inputtxt) : 0;
+                if (line != 0)
+                {
+                    txt_contentID.ActiveTextAreaControl.Caret.Line = Convert.ToInt32(inputtxt) - 1;
+                }
+            }
+            else if (e.Control && e.KeyCode == Keys.K)//格式化代码
+            {
+                button9_Click(sender, e);
+            }
+        }
+
+        public void myevent() => btn_testlink_Click(this, new EventArgs());
+
         /// <summary>
         /// 静态页面路径选择
         /// </summary>
@@ -113,6 +149,7 @@ namespace Tools
             IsBehideCode = false;
             button4_Click(sender, e);
         }
+
         /// <summary>
         /// 右键母版页字段菜单
         /// </summary>
@@ -121,6 +158,7 @@ namespace Tools
         private void cesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripItem item = (ToolStripItem)sender;
+            (sender as ToolStripMenuItem).Checked = true;
             //string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
             txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
             txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
@@ -144,6 +182,11 @@ namespace Tools
         {
             BindDropDownList();
             Init();
+            if (!string.IsNullOrEmpty(webpath))
+            {
+                this.textBox3.Text = webpath;
+                myevent();
+            }
         }
         /// <summary>
         /// 初始化窗体
@@ -203,8 +246,28 @@ namespace Tools
                 tools_common.DropDownItems.Add(toolStripItem);
             }
 
+            dic.Clear();
+            //绑定新闻字段
+            dic.Add("ArticleId", "ArticleId");
+            dic.Add("ParentId", "ParentId");
+            dic.Add("ArticleImg", "ArticleImg");
+            dic.Add("ArticleTitle", "ArticleTitle");
+            dic.Add("ArticleSummy", "ArticleSummy");
+            dic.Add("ArticleContent", "ArticleContent");
+            dic.Add("AddTime", "AddTime");
+            foreach (string str in dic.Keys)
+            {
+                ToolStripItem toolStripItem = new ToolStripMenuItem(dic[str].ToString());
+                toolStripItem.Name = str;
+                toolStripItem.Text = dic[str].ToString();
+                toolStripItem.Click += contextMenuStrip1_ItemClick;
+
+                tool_article.DropDownItems.Add(toolStripItem);
+            }
             //初始化模型
             BindColumnList();
+
+            InitTools();
         }
         /// <summary>
         /// 添加模型
@@ -229,7 +292,8 @@ namespace Tools
                 {
                     str = "";
                 }
-                BindDropDounlists(str);
+                bool result = false;
+                BindDropDounlists(str, ref result);
                 table_select.SelectedValue = tablename;
             }
         }
@@ -245,7 +309,9 @@ namespace Tools
             {
                 str = "";
             }
-            BindDropDounlists(str);
+            bool result = false;
+            BindDropDounlists(str, ref result);
+            BindColumnList();
         }
         //快速添加字段
         private void button3_Click(object sender, EventArgs e)
@@ -254,7 +320,7 @@ namespace Tools
             int count = 0;
             string filedtype = fileds_select.SelectedValue.ToString();
             string filedname = txt_filedname.Text.Trim();//字段名
-
+            string selecttxt = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
             int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.SelectedValue + "'", "ModelId")["ModelId"]);
             try
             {
@@ -333,6 +399,7 @@ namespace Tools
                         model.Alias = filedname;
                         model.FiledName = "desc_" + NumberToEnglish(count + 1);
                         model.Validation = "";
+                        selecttxt = System.Web.HttpUtility.HtmlEncode(selecttxt);
                         break;
                     case "PicType":
                         model.Content = "";
@@ -360,13 +427,13 @@ namespace Tools
                         }
                         else
                         {
-                            count = ModelFiled_dal.GetFiledCount(modelid, "img");
+                            count = ModelFiled_dal.GetFiledCount(modelid, "normalimg");
                             if (string.IsNullOrEmpty(filedname))
                             {
                                 filedname = "图片" + NumberToChinese(count + 1);
                             }
                             model.Alias = filedname;
-                            model.FiledName = "img_" + NumberToEnglish(count + 1);
+                            model.FiledName = "normalimg_" + NumberToEnglish(count + 1);
                         }
                         model.Validation = "";
                         break;
@@ -410,14 +477,13 @@ namespace Tools
                 model.AddTime = DateTime.Now;
                 model.ModelId = modelid;
                 model.OrderId = ModelFiled_dal.GetTopOrderID("ModelFiled");
+                insert_fileds.Add(model.FiledName, $"'{selecttxt}'");
                 ModelFiled_dal.Add(model);
                 //生成modelhtml
                 StringBuilder sbr = new StringBuilder();
                 ModelFiled_dal.CreateModelHTML(model.ModelId, ref sbr);
-                txt_contentextension.Text = sbr.ToString();
-                txt_contentextension.ActiveTextAreaControl.Caret.Line = sbr.Length;
 
-                DropDownList3_SelectedIndexChanged(sender, e);
+                InitTools();
             }
             catch (Exception ex)
             {
@@ -434,9 +500,74 @@ namespace Tools
         {
             try
             {
+                insert_fileds.Clear();
+                default_fileds.Clear();
                 tools_addfiled.DropDownItems.Clear();
+                #region 添加默认数据进入数据表
+                if (table_select.Text.Contains("Article") && !table_select.Text.Contains("Single"))
+                {
+                    default_fileds.Add("Hits", "0");
+                    default_fileds.Add("ArticleImg", "''");
+                    default_fileds.Add("ArticleSummy", "''");
+                    default_fileds.Add("ArticleKey", "");
+                    default_fileds.Add("ArticleDescription", "''");
+                    default_fileds.Add("ArticleContent", "''");
+                    default_fileds.Add("ArticleTitle", "''");
+                    default_fileds.Add("videourl", "''");
+                    default_fileds.Add("Soruce", "''");
+                    default_fileds.Add("Author", "''");
+                    default_fileds.Add("SubTitle", "''");
+                }
+                else
+                {
+                    default_fileds.Add("KeyWord", "''");
+                    default_fileds.Add("Description", "''");
+                    default_fileds.Add("Tittle", "''");
+                }
+                default_fileds.Add("ParentId", column_select.SelectedValue == null ? "" : column_select.SelectedValue.ToString());
+                default_fileds.Add("SystemId", "1");
+                default_fileds.Add("IsTop", "'False'");
+                default_fileds.Add("IsRecommend", "'False'");
+                default_fileds.Add("IsHot", "'False'");
+                default_fileds.Add("IsSlide", "'False'");
+                default_fileds.Add("IsColor", "'False'");
+                default_fileds.Add("OrderId", "0");
+                default_fileds.Add("AddTime", $"'{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}'");
+                default_fileds.Add("LastEditDate", $"'{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}'");
+                default_fileds.Add("AddUserName", "'webmaster'");
+                default_fileds.Add("LastEditUserName", "'webmaster'");
+                default_fileds.Add("CheckedLevel", "-88");
+
+                if (table_select.Text.Contains("SingleArticle"))
+                {
+                    default_fileds.Add("Hits", "0");
+                    default_fileds.Add("Content", "''");
+                    default_fileds.Add("ArticleKey", "''");
+                    default_fileds.Add("ArticleDescription", "''");
+                    default_fileds.Add("Summy", "''");
+                    default_fileds.Remove("IsTop");
+                    default_fileds.Remove("IsRecommend");
+                    default_fileds.Remove("IsSlide");
+                    default_fileds.Remove("IsColor");
+                    default_fileds.Remove("IsHot");
+                    default_fileds.Remove("OrderId");
+                    default_fileds.Remove("KeyWord");
+                    default_fileds.Remove("Description");
+                }
+                #endregion
+                InitTools();
+            }
+            catch (Exception ex) { }
+        }
+        /// <summary>
+        /// 初始化添加字段菜单
+        /// </summary>
+        private void InitTools()
+        {
+            try
+            {
                 ToolStripItem toolStripItemf = new ToolStripMenuItem("标题");
-                if (table_select.Text.Contains("Article"))
+                if (table_select.Text.Contains("Article") && !table_select.Text.Contains("Single"))
                 {
                     toolStripItemf.Name = "ArticleTitle";
                 }
@@ -446,8 +577,13 @@ namespace Tools
                 }
                 toolStripItemf.Text = "标题";
                 toolStripItemf.Click += contextMenuStrip1_ItemClick;
-
                 tools_addfiled.DropDownItems.Add(toolStripItemf);
+
+                ToolStripItem toolStripItems = new ToolStripMenuItem("时间");
+                toolStripItems.Name = "AddTime";
+                toolStripItems.Text = "时间";
+                toolStripItems.Click += contextMenuStrip1_ItemClick;
+                tools_addfiled.DropDownItems.Add(toolStripItems);
 
                 int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.SelectedValue + "'", "ModelId")["ModelId"]);
                 IList<ModelFiled> modellist = ModelFiled_dal.GetModelList(modelid);
@@ -456,16 +592,55 @@ namespace Tools
                     ToolStripItem toolStripItem = new ToolStripMenuItem(model.Alias);
                     toolStripItem.Name = model.FiledName;
                     toolStripItem.Text = model.Alias;
+                    if (insert_fileds.ContainsKey(model.FiledName))
+                    {
+                        if (!default_fileds.ContainsKey(model.FiledName))
+                            default_fileds.Add(model.FiledName, insert_fileds[model.FiledName]);
+                        else
+                            default_fileds[model.FiledName] = insert_fileds[model.FiledName];
+                    }
+                    else if (!default_fileds.ContainsKey(model.FiledName))
+                    {
+                        default_fileds.Add(model.FiledName, "''");
+                    }
                     toolStripItem.Click += contextMenuStrip1_ItemClick;
-
                     tools_addfiled.DropDownItems.Add(toolStripItem);
                 }
+
+                string default_filedstr = null;
+                foreach (string key in default_fileds.Keys)
+                {
+                    default_filedstr += $"{key}:{default_fileds[key]}\r\n";
+                }
+                txt_contentextension.Text = default_filedstr;
+                txt_contentextension.ActiveTextAreaControl.Caret.Line = default_filedstr.Length;
             }
             catch (Exception ex)
             {
 
             }
         }
+        /// <summary>
+        /// 修改对应字段内容
+        /// </summary>
+        /// <param name="filedname"></param>
+        /// <param name="filedcont"></param>
+        private void UpdateFiledCont(string filedname, string filedcont)
+        {
+            if (default_fileds.ContainsKey(filedname))
+            {
+                default_fileds[filedname] = $"'{filedcont}'";
+            }
+            default_fileds["ParentId"] = column_select.SelectedValue == null ? "" : column_select.SelectedValue.ToString();
+            string default_filedstr = null;
+            foreach (string key in default_fileds.Keys)
+            {
+                default_filedstr += $"{key}:{default_fileds[key]}\r\n";
+            }
+            txt_contentextension.Text = default_filedstr;
+            txt_contentextension.ActiveTextAreaControl.Caret.Line = default_filedstr.Length;
+        }
+
         /// <summary>
         /// 右键字段菜单点击事件
         /// </summary>
@@ -474,33 +649,37 @@ namespace Tools
         private void contextMenuStrip1_ItemClick(object sender, EventArgs e)
         {
             ToolStripItem item = (ToolStripItem)sender;
-            //string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+            (sender as ToolStripMenuItem).Checked = true;
+            string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
             txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
             txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
             string pagedr = pagedr_select.Text;
             string masterpage = "";
+            bool isrepeater = checkbox_repeater.Checked;
             if (checkBox1.Checked)
             {
                 masterpage = "WebUtility.";
             }
             try
             {
-                if (item.Name.Contains("title_"))
+                if (item.Name.Contains("word_") || item.Name.Contains("Summy"))
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\")%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Eval(\"{item.Name}\").ToString().Replace(\"\\r\\n\",\"<br/>\")%>") : ($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\").Replace(\"\\r\\n\",\"<br/>\")%>"));
                 }
-                else if (item.Name.Contains("word_"))
+                else if (item.Name.Contains("desc_") || item.Name.Contains("Content"))
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\").Replace(\"\\r\\n\",\"<br/>\")%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Server.HtmlDecode(Eval(\"{item.Name}\").ToString())%>") : ($"<%={masterpage}GetDataRowEditorValue({pagedr},\"{item.Name}\")%>"));
+                    selectcont = System.Web.HttpUtility.HtmlEncode(selectcont);
                 }
-                else if (item.Name.Contains("desc_"))
+                else if (item.Name.ToLower().Contains("time"))
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%={masterpage}GetDataRowEditorValue({pagedr},\"{item.Name}\")%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Convert.ToDateTime(Eval(\"{item.Name}\")).ToString(\"yyyy-MM-dd\")%>") : ($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\")%>"));
                 }
                 else
                 {
-                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\")%>");
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Eval(\"{item.Name}\")%>") : ($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\")%>"));
                 }
+                UpdateFiledCont(item.Name, selectcont);
             }
             catch (Exception ex)
             {
@@ -532,6 +711,7 @@ namespace Tools
         private void button6_Click(object sender, EventArgs e)
         {
             IsBehideCode = false;
+            button4_Click(sender, e);
             page_select_SelectedIndexChanged(sender, e);
             DropDownList3_SelectedIndexChanged(sender, e);
         }
@@ -571,7 +751,8 @@ namespace Tools
         {
             string codecontent = txt_contentID.Text;
             string str = GetEasyFieldsNewString(table_select.SelectedValue.ToString());
-            codecontent = codecontent.Replace(" }\r\n        }\r\n        catch\r\n        {\r\n        }\r\n    }\r\n}\r\n", str + " }\r\n        }\r\n        catch\r\n        {\r\n        }\r\n    }\r\n}\r\n");
+            codecontent = codecontent.Replace("\r\n", "\n");
+            codecontent = codecontent.Replace("}\n        }\n        catch\n        {\n        }\n    }\n}", str + "}\n        }\n        catch\n        {\n        }\n    }\n}");
             txt_contentID.Text = codecontent;
             txt_contentID.ActiveTextAreaControl.Caret.Line = codecontent.Length;
             txt_contentextension.Text = str;
@@ -589,83 +770,75 @@ namespace Tools
             string helperclass = null;//使用方法类
             string pagehtml = null;//单行数据使用PageDr多行Repeater
             string repeater_name = txt_repeatername.Text.Trim();
+            bool isrepeater = checkbox_repeater.Checked;
+            bool IsPage = checkbox_pages.Checked;
             if (string.IsNullOrEmpty(repeater_name))
             {
-                repeater_name = "Repeater_newslist";
+                repeater_name = "Repeater_" + (Tablename.Contains('_')
+                    ? !string.IsNullOrEmpty(Tablename.Split('_')[1])
+                    ? Tablename.Split('_')[1]
+                    : ""
+                    : Tablename);
             }
             DataTable dt = null;
-            //if (Tablename == "Article")
-            //{
-            //    stringBuilder.Append("int recount=0;\r\n");
-            //    stringBuilder.Append("int pageindex=1;\r\n");
-            //    stringBuilder.Append("int pagesize=8;\r\n");
-            //    stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
-            //    stringBuilder.Append("{\r\n");
-            //    stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\r\n");
-            //    stringBuilder.Append("}\r\n");
-            //    helperclass = "Commonoperate.";
-            //}
-            if (Tablename == "Article")
-                orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
-            else
-                orderby = "OrderId desc\");";
+
+            orderby = Tablename == "Article"
+                ? "AddTime desc\""
+                : "OrderId desc\"";
+            string pid = null;//ParentId
             dt = DBHelper.GetDataSet("select distinct(ParentId)pid from " + Tablename + "");
             if (dt.Rows.Count > 0)
             {
-                if (dt.Rows.Count > 1)
+                if (dt.Rows.Count == 1)
                 {
-                    stringBuilder.Append("int recount=0;\r\n");
-                    stringBuilder.Append("int pageindex=1;\r\n");
-                    stringBuilder.Append("int pagesize=8;\r\n");
-                    stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
-                    stringBuilder.Append("{\r\n");
-                    stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\r\n");
-                    stringBuilder.Append("}\r\n");
-                    orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
-                    swhere = " and ParentId=\"+t+\"";
-                    helperclass = "Commonoperate.";
-                    pagehtml =
-                        $"{repeater_name}.DataSource = dt;\r\n" +
-                        $"{repeater_name}.DataBind();\r\n";
+                    pid = dt.Rows[0]["pid"].ToString();
                 }
                 else
                 {
-                    dt = DBHelper.GetDataSet("select count(ParentId)counts from " + Tablename + "");
-                    if (dt.Rows.Count > 0)
-                    {
-                        if (Convert.ToInt32(dt.Rows[0]["counts"]) > 1)
-                        {
-                            stringBuilder.Append("int recount=0;\r\n");
-                            stringBuilder.Append("int pageindex=1;\r\n");
-                            stringBuilder.Append("int pagesize=8;\r\n");
-                            stringBuilder.Append("if(Request[\"page\"]!=null)\r\n");
-                            stringBuilder.Append("{\r\n");
-                            stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\r\n");
-                            stringBuilder.Append("}\r\n");
-                            orderby = "AddTime desc\", pagesize, pageindex, ref recount);";
-                            helperclass = "Commonoperate.";
-                            pagehtml =
-                                $"{repeater_name}.DataSource = dt;\r\n" +
-                                $"{repeater_name}.DataBind();\r\n";
-                        }
-                        else
-                        {
-                            pagehtml = $"  {pagedr_select.Text}=dt.Rows[0];\r\n";
-                        }
-                        dt = DBHelper.GetDataSet("select ParentId from " + Tablename + "");
-                        if (dt.Rows.Count > 0)
-                        {
-                            swhere = " and ParentId=" + dt.Rows[0]["ParentId"].ToString();
-                        }
-                    }
+                    pid = "\"+t+\"";
                 }
             }
+            //如果分页
+            if (IsPage)
+            {
+                stringBuilder.Append("int recount=0;\n");
+                stringBuilder.Append("int pageindex=1;\n");
+                stringBuilder.Append("int pagesize=8;\n");
+                stringBuilder.Append("if(Request[\"page\"]!=null)\n");
+                stringBuilder.Append("{\n");
+                stringBuilder.Append("    pageindex=WebUtility.getparam(\"page\");\n");
+                stringBuilder.Append("}\n");
+
+                orderby += ", pagesize, pageindex, ref recount);";
+                helperclass = "Commonoperate.";
+                pagehtml =
+                    $"{repeater_name}.DataSource = dt;\n" +
+                    $"{repeater_name}.DataBind();\n";
+            }
+            else
+            {
+                if (isrepeater)
+                {
+                    pagehtml =
+                        $"{repeater_name}.DataSource = dt;\n" +
+                        $"{repeater_name}.DataBind();\n";
+                }
+                else
+                {
+                    pagehtml = $"{pagedr_select.Text}=dt.Rows[0];\n";
+                }
+                orderby += ");";
+            }
+            swhere = $" and ParentId={pid}";
+
             //筛选不需要的字段
             string fild = "SystemId,Hits,KeyWord,Description,IsTop,IsRecommend,IsHot,IsSlide,IsColor,OrderId,AddUserName,LastEditUserName,LastEditDate,CheckedLevel";
             string[] filds = fild.Split(',');
-            stringBuilder.Append($"dt = {helperclass}GetDataList(\"{Tablename}\", \"");
+            stringBuilder.Append($"\n//{table_select.Text}表内数据\n");
+            stringBuilder.Append($"dt = {helperclass}GetDataList(\"{Tablename}\",\n \"");
 
             dt = DBHelper.GetDataSet($"Select Name FROM SysColumns Where id=Object_Id('{Tablename}') order by colid asc");
+
             foreach (DataRow dr in dt.Rows)
             {
                 if (!filds.Contains(dr["Name"].ToString()))
@@ -673,12 +846,13 @@ namespace Tools
                     stringBuilder.Append("" + dr["Name"] + ",");
                 }
             }
+            stringBuilder.Append("\n");
             stringBuilder.Remove(stringBuilder.Length - 1, 1);
-            stringBuilder.Append($"\", \"IsColor=0{swhere}\", \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,{orderby}\r\n");
-            stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\r\n");
-            stringBuilder.Append("{\r\n");
+            stringBuilder.Append($"\",\n \"IsColor=0{swhere}\",\n \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,{orderby}\n");
+            stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\n");
+            stringBuilder.Append("{\n");
             stringBuilder.Append(pagehtml);
-            stringBuilder.Append("}\r\n");
+            stringBuilder.Append("}\n");
             return stringBuilder.ToString();
         }
 
@@ -715,106 +889,77 @@ namespace Tools
             string res = string.Empty;
             string str = number.ToString();
             string schar = str.Substring(0, 1);
-            switch (schar)
+            if (str.Length == 1)
             {
-                case "1":
-                    res = "一";
-                    break;
-                case "2":
-                    res = "二";
-                    break;
-                case "3":
-                    res = "三";
-                    break;
-                case "4":
-                    res = "四";
-                    break;
-                case "5":
-                    res = "五";
-                    break;
-                case "6":
-                    res = "六";
-                    break;
-                case "7":
-                    res = "七";
-                    break;
-                case "8":
-                    res = "八";
-                    break;
-                case "9":
-                    res = "九";
-                    break;
-                default:
-                    res = "";
-                    break;
-            }
-            if (str.Length > 1)
-            {
-                switch (str.Length)
+                switch (schar)
                 {
-                    case 2:
-                    case 6:
-                        res += "十";
-                        break;
-                    case 3:
-                    case 7:
-                        res += "百";
-                        break;
-                    case 4:
-                        res += "千";
-                        break;
-                    case 5:
-                        res += "万";
-                        break;
-                    default:
-                        res += "";
-                        break;
+                    case "1": res = "一"; break;
+                    case "2": res = "二"; break;
+                    case "3": res = "三"; break;
+                    case "4": res = "四"; break;
+                    case "5": res = "五"; break;
+                    case "6": res = "六"; break;
+                    case "7": res = "七"; break;
+                    case "8": res = "八"; break;
+                    case "9": res = "九"; break;
+                    default: res = "一"; break;
                 }
-                res += NumberToChinese(int.Parse(str.Substring(1, str.Length - 1)));
+            }
+            else if (str.Length == 2)
+            {
+                schar = str.Substring(0, 2);
+                switch (schar)
+                {
+                    case "10": res = "十"; break;
+                    case "11": res = "十一"; break;
+                    case "12": res = "十二"; break;
+                    case "13": res = "十三"; break;
+                    case "14": res = "十四"; break;
+                    case "15": res = "十五"; break;
+                    default: res = "十"; break;
+                }
             }
             return res;
-        }/// <summary>
-         /// 数字转英文
-         /// </summary>
-         /// <param name="number">eg: 22</param>
-         /// <returns></returns>
+        }
+        /// <summary>
+        /// 数字转英文
+        /// </summary>
+        /// <param name="number">eg: 22</param>
+        /// <returns></returns>
         public string NumberToEnglish(int number)
         {
             string res = string.Empty;
             string str = number.ToString();
             string schar = str.Substring(0, 1);
-            switch (schar)
+            if (str.Length == 1)
             {
-                case "1":
-                    res = "f";
-                    break;
-                case "2":
-                    res = "s";
-                    break;
-                case "3":
-                    res = "t";
-                    break;
-                case "4":
-                    res = "fo";
-                    break;
-                case "5":
-                    res = "fif";
-                    break;
-                case "6":
-                    res = "six";
-                    break;
-                case "7":
-                    res = "sev";
-                    break;
-                case "8":
-                    res = "eig";
-                    break;
-                case "9":
-                    res = "nine";
-                    break;
-                default:
-                    res = "";
-                    break;
+                switch (schar)
+                {
+                    case "1": res = "f"; break;
+                    case "2": res = "s"; break;
+                    case "3": res = "t"; break;
+                    case "4": res = "fo"; break;
+                    case "5": res = "fif"; break;
+                    case "6": res = "six"; break;
+                    case "7": res = "sev"; break;
+                    case "8": res = "eig"; break;
+                    case "9": res = "nine"; break;
+                    default: res = "f"; break;
+                }
+            }
+            else if (str.Length == 2)
+            {
+                schar = str.Substring(0, 2);
+                switch (schar)
+                {
+                    case "10": res = "ten"; break;
+                    case "11": res = "ele"; break;
+                    case "12": res = "twe"; break;
+                    case "13": res = "thirteen"; break;
+                    case "14": res = "foteen"; break;
+                    case "15": res = "fifteen"; break;
+                    default: res = "ten"; break;
+                }
             }
             return res;
         }
@@ -850,7 +995,7 @@ namespace Tools
         /// 绑定数据表
         /// </summary>
         /// <param name="database"></param>
-        public void BindDropDounlists(string database)
+        public void BindDropDounlists(string database, ref bool result)
         {
             try
             {
@@ -864,12 +1009,14 @@ namespace Tools
                         table_select.DisplayMember = "tablename";
                         table_select.ValueMember = "name";
                         table_select.Text = dt.Rows[0]["tablename"].ToString();
+
+                        result = true;
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show(ex.Message);
+                result = false;
             }
         }
         /// <summary>
@@ -886,13 +1033,28 @@ namespace Tools
                     this.database_select.DataSource = dt;
                     this.database_select.DisplayMember = "name";
                     this.database_select.ValueMember = "database_id";
-                    this.database_select.Text = dt.Rows[0]["name"].ToString();
-                    BindDropDounlists(database_select.Text);
+                    bool result = false;
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            this.database_select.Text = dt.Rows[i]["name"].ToString();
+                            BindDropDounlists(database_select.Text, ref result);
+                            if (!result)
+                                continue;
+                            else
+                                break;
+                        }
+                        catch { }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
+            }
+            finally
+            {
             }
         }
         // <summary>
@@ -914,7 +1076,6 @@ namespace Tools
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
             }
         }
         /// <summary>
@@ -1061,7 +1222,6 @@ namespace Tools
             List<string> s_list = new List<string>();
             try
             {
-
                 string[] filenames = Directory.GetFiles(path);//得到完整路径文件名
                 string filename = string.Empty;
                 string extension = string.Empty;
@@ -1086,7 +1246,7 @@ namespace Tools
         }
         #endregion
         private bool IsBehideCode = false;//全局变量指示现在的代码是不是后台代码
-        //Ctrl+s保存更改
+                                          //Ctrl+s保存更改
         private void quickCode_KeyDown_1(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)//按下ctrl+s
@@ -1121,7 +1281,8 @@ namespace Tools
             string modelid = ModelFiled_dal.GetModelIdByExpression($"TableName='{table_select.SelectedValue}'", "ModelId")["ModelId"].ToString();
             try
             {
-                string sql = $"update ColumnCategory set ModelType={modelid} where ColumnId={column_select.SelectedValue}";
+                string sql = $"update ColumnCategory set ModelType={modelid} " +
+                    $"where ColumnId={column_select.SelectedValue}";
                 DBHelper.ExecuteCommand(sql);
             }
             catch (Exception ex)
@@ -1129,67 +1290,172 @@ namespace Tools
                 MessageBox.Show(ex.Message);
             }
         }
-    }
-    /// <summary>
-    /// 自适应窗体
-    /// </summary>
-    public class AutoResizeForm : Form
-    {
-        const int WM_SYSCOMMAND = 0X112;//274
-        const int SC_MAXIMIZE = 0XF030;//61488
-        const int SC_MINIMIZE = 0XF020;//61472
-        const int SC_RESTORE = 0XF120; //61728
-        const int SC_CLOSE = 0XF060;//61536
-        const int SC_RESIZE_Horizontal = 0XF002;//61442
-        const int SC_RESIZE_Vertical = 0XF006;//61446
-        const int SC_RESIZE_Both = 0XF008;//61448
-
-        protected override void WndProc(ref Message m)
+        /// <summary>
+        /// 代码折叠
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txt_contentID_TextChanged(object sender, EventArgs e)
         {
-            if (m.Msg == WM_SYSCOMMAND)
+            //更新，以便进行代码折叠
+            txt_contentID.Document.FoldingManager.UpdateFoldings(null, null);
+        }
+        /// <summary>
+        /// 格式化代码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button9_Click(object sender, EventArgs e)
+        {
+            int linecount = txt_contentID.ActiveTextAreaControl.Caret.Line;
+            if (IsBehideCode)
+                txt_contentID.Text = CSharpFormatHelper.FormatCSharpCode(txt_contentID.Text);
+            else
+                txt_contentID.Text = CSharpFormatHelper.FormatHtmlCode(txt_contentID.Text);
+            txt_contentID.ActiveTextAreaControl.Caret.Line = linecount;
+        }
+        /// <summary>
+        /// 查看字段
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button11_Click(object sender, EventArgs e)
+        {
+            int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.SelectedValue + "'", "ModelId")["ModelId"]);
+            StringBuilder sbr = new StringBuilder();
+            ModelFiled_dal.CreateModelHTML(modelid, ref sbr);
+            txt_contentextension.Text = sbr.ToString();
+            txt_contentextension.ActiveTextAreaControl.Caret.Line = sbr.Length;
+        }
+        /// <summary>
+        /// 嵌套Repeater在代码外层
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_repeater_Click(object sender, EventArgs e)
+        {
+            string Tablename = table_select.SelectedValue.ToString();
+            string repeater_name = txt_repeatername.Text.Trim();
+            if (string.IsNullOrEmpty(repeater_name))
             {
-                switch (m.WParam.ToInt32())
-                {
-                    case SC_MAXIMIZE:
-                    case SC_RESTORE:
-                    case SC_RESIZE_Horizontal:
-                    case SC_RESIZE_Vertical:
-                    case SC_RESIZE_Both:
-                        if (WindowState == FormWindowState.Minimized)
-                        {
-                            base.WndProc(ref m);
-                        }
-                        else
-                        {
-                            Size beforeResizeSize = this.Size;
-                            base.WndProc(ref m);
-                            //窗口resize之后的大小
-                            Size afterResizeSize = this.Size;
-                            //获得变化比例
-                            float percentWidth = (float)afterResizeSize.Width / beforeResizeSize.Width;
-                            float percentHeight = (float)afterResizeSize.Height / beforeResizeSize.Height;
-                            foreach (Control control in this.Controls)
-                            {
-                                //按比例改变控件大小
-                                control.Width = (int)(control.Width * percentWidth);
-                                control.Height = (int)(control.Height * percentHeight);
-                                //为了不使控件之间覆盖 位置也要按比例变化
-                                control.Left = (int)(control.Left * percentWidth);
-                                control.Top = (int)(control.Top * percentHeight);
-                                //改变控件字体大小
-                                //control.Font = new Font(control.Font.Name, control.Font.Size * Math.Min(percentHeight, percentHeight), control.Font.Style, control.Font.Unit);
-                            }
-                        }
-                        break;
-                    default:
-                        base.WndProc(ref m);
-                        break;
-                }
+                repeater_name = Tablename.Contains('_') ? !string.IsNullOrEmpty(Tablename.Split('_')[1]) ? Tablename.Split('_')[1] : "" : Tablename;
+            }
+            StringBuilder sbr = new StringBuilder();
+            string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+            txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+
+            sbr.Append($"<!--Repeater_{repeater_name}_Start-->\n");
+            sbr.Append($"<asp:Repeater ID=\"Repeater_{repeater_name}\" runat=\"server\">\n");
+            sbr.Append("                <ItemTemplate>\n");
+            sbr.Append(selectcont + "\n");
+            sbr.Append("                </ItemTemplate>\n");
+            sbr.Append("   </asp:Repeater>\n");
+            sbr.Append($"<!--Repeater_{repeater_name}_End-->");
+
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(sbr.ToString());
+        }
+        /// <summary>
+        /// 置顶（开）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_open_Click(object sender, EventArgs e)
+        {
+            tools_close.Checked = false;
+            tools_open.Checked = true;
+            TopMost = true;
+        }
+        /// <summary>
+        /// 置顶（关）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_close_Click(object sender, EventArgs e)
+        {
+            tools_open.Checked = false;
+            tools_close.Checked = true;
+            TopMost = false;
+        }
+        bool panelIsShow = false;
+        private void button12_Click(object sender, EventArgs e)
+        {
+            if (panelIsShow)
+            {
+                groupBox2.Hide();
+                button12.Text = "显示数据显示";
             }
             else
             {
-                base.WndProc(ref m);
+                groupBox2.Show();
+                button12.Text = "隐藏数据显示";
             }
+            panelIsShow = panelIsShow == false ? true : false;
+        }
+        //刷新栏目列表
+        private void button14_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                AddInTable(default_fileds, table_select.SelectedValue.ToString());
+                MessageBox.Show("添加成功");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// 通用添加数据
+        /// </summary>
+        /// <param name="dicts"></param>
+        /// <param name="TableName"></param>
+        /// <returns></returns>
+        public static int AddInTable(Dictionary<string, string> dicts, string TableName)
+        {
+            StringBuilder sbr = new StringBuilder();
+            sbr.Append("insert into ");
+            sbr.Append(TableName);
+            sbr.Append(" (");
+            foreach (string key in dicts.Keys)
+            {
+                sbr.Append($"[{key}]");
+                sbr.Append(",");
+            }
+            sbr.Remove(sbr.Length - 1, 1);
+            sbr.Append(") values (");
+            //填充数据
+            foreach (string str in dicts.Values)
+            {
+                sbr.Append(str);
+                sbr.Append(",");
+            }
+            sbr.Remove(sbr.Length - 1, 1);
+            sbr.Append(")");
+
+            return DBHelper.ExecuteCommand(sbr.ToString());
+        }
+        /// <summary>
+        /// 右键生成查询语句
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_codesql_Click(object sender, EventArgs e)
+        {
+            string str = GetEasyFieldsNewString(table_select.SelectedValue.ToString());//字段字符串
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(str);
+        }
+        //生成网站目录
+        private void tools_createpage_Click(object sender, EventArgs e)
+        {
+            Createpage create = new Createpage();
+            create.Show();
         }
     }
 }

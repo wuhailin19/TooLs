@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Text;
 using System.Windows.Forms;
-using System.Web.UI;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using NPinyin;
 using System.Xml;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Collections.Generic;
 
 namespace Tools
 {
@@ -96,46 +92,46 @@ namespace Tools
 
                         filenameandpath = path + "\\" + name.Replace("-", "_") + ".aspx.cs";
                         FileStreamCreatefile(filenameandpath,
-                        "using System;\r\n" +
-                        "using System.Collections.Generic;\r\n" +
-                        "using System.Web;\r\n" +
-                        "using System.Web.UI;\r\n" +
-                        "using System.Web.UI.WebControls;\r\n" +
-                        "using System.Text;\r\n" +
-                        "using System.Data;\r\n\r\n" +
-                        "public partial class " + name + " : PageDataBind\r\n" +
-                        "{\r\n" +
-                        "    public string firstPbanner = string.Empty, firstPageName = string.Empty, firstEnglishName = string.Empty, nowPbanner = string.Empty, nowPageName = string.Empty, nowPageEnglishName = string.Empty;\r\n" +
-                        "    public StringBuilder Sbr_Page_Navbar = new StringBuilder();\r\n" +
-                        "    public DataRow PageDr = null;\r\n" +
-                        "\r\n" +
-                        "    protected void Page_LoadComplete(object sender, EventArgs e)\r\n" +
-                        "    {\r\n" +
-                        "        firstPbanner = ((comm)Page.Master).firstPbanner;\r\n" +
-                        "        firstPageName = ((comm)Page.Master).firstPageName;\r\n" +
-                        "        firstEnglishName = ((comm)Page.Master).firstEnglishName;\r\n" +
-                        "        nowPbanner = ((comm)Page.Master).nowPbanner;\r\n" +
-                        "        nowPageName = ((comm)Page.Master).nowPageName;\r\n" +
-                        "        nowPageEnglishName = ((comm)Page.Master).nowPageEnglishName;\r\n" +
-                        "        Sbr_Page_Navbar = ((comm)Page.Master).Sbr_Page_Navbar;\r\n" +
-                        "     }\r\n" +
-                        "protected void Page_Load(object sender, EventArgs e)\r\n" +
-                        "{\r\n" +
-                        "   try\r\n" +
-                        "        {\r\n" +
-                        "            int t = WebUtility.getparam(\"t\");\r\n" +
-                        "            if (t != 0)\r\n" +
-                        "            {\r\n" +
-                        "                setkeyword(t);\r\n" +
-                        "                DataTable dt = null;\r\n" +
-                        "            }\r\n" +
-                        "        }\r\n" +
-                        "        catch\r\n" +
+                        "using System;\n" +
+                        "using System.Collections.Generic;\n" +
+                        "using System.Web;\n" +
+                        "using System.Web.UI;\n" +
+                        "using System.Web.UI.WebControls;\n" +
+                        "using System.Text;\n" +
+                        "using System.Data;\n\n" +
+                        "public partial class " + name + " : PageDataBind\n" +
+                        "{\n" +
+                        "    public string firstPbanner = string.Empty, firstPageName = string.Empty, firstEnglishName = string.Empty, nowPbanner = string.Empty, nowPageName = string.Empty, nowPageEnglishName = string.Empty;\n" +
+                        "    public StringBuilder Sbr_Page_Navbar = new StringBuilder();\n" +
+                        "    public DataRow PageDr = null;\n" +
+                        "\n" +
+                        "    protected void Page_LoadComplete(object sender, EventArgs e)\n" +
+                        "    {\n" +
+                        "        firstPbanner = ((comm)Page.Master).firstPbanner;\n" +
+                        "        firstPageName = ((comm)Page.Master).firstPageName;\n" +
+                        "        firstEnglishName = ((comm)Page.Master).firstEnglishName;\n" +
+                        "        nowPbanner = ((comm)Page.Master).nowPbanner;\n" +
+                        "        nowPageName = ((comm)Page.Master).nowPageName;\n" +
+                        "        nowPageEnglishName = ((comm)Page.Master).nowPageEnglishName;\n" +
+                        "        Sbr_Page_Navbar = ((comm)Page.Master).Sbr_Page_Navbar;\n" +
+                        "     }\n" +
+                        "protected void Page_Load(object sender, EventArgs e)\n" +
+                        "{\n" +
+                        "   try\n" +
+                        "        {\n" +
+                        "            int t = WebUtility.getparam(\"t\");\n" +
+                        "            if (t != 0)\n" +
+                        "            {\n" +
+                        "                setkeyword(t);\n" +
+                        "                DataTable dt = null;\n" +
+                        "            }\n" +
+                        "        }\n" +
+                        "        catch\n" +
                         "        {" +
-                        "\r\n" +
-                        "        }\r\n" +
-                        "}\r\n" +
-                        "}\r\n");
+                        "\n" +
+                        "        }\n" +
+                        "}\n" +
+                        "}\n");
 
                         //filenameandpath = path + "\\" + name.Replace("-", "_") + ".aspx.designer.cs";
                         //FileStreamCreatefile(filenameandpath,
@@ -539,6 +535,7 @@ namespace Tools
             }
             return result;
         }
+        private string newwebpath = null;//传递窗体参数
         private void button12_Click(object sender, EventArgs e)
         {
             string websitename = getWebsitePath(textBox2.Text);
@@ -549,6 +546,7 @@ namespace Tools
                 {
                     relcopyfirstfiles(textBox4.Text, newpath);
                     string webpath = newpath + "\\" + "web";
+                    newwebpath = webpath;
                     if (Directory.Exists(webpath))
                     {
                         try
@@ -698,7 +696,8 @@ namespace Tools
         {
             string htmlcontent = ReadContentFromFile(htmlpath);
             htmlcontent = htmlcontent.Replace("\r\n", "");
-            htmlcontent = htmlcontent.Replace("  ", " ");
+            htmlcontent = Regex.Replace(htmlcontent, "\\s{2,}", "");
+            htmlcontent = htmlcontent.Replace("\t", "");
             string Content = null;
             //Content
             try
@@ -709,8 +708,8 @@ namespace Tools
                     Content = htmlcontent.Substring(countf + 6);
                     int counts = Content.IndexOf("<script");
                     Content = Content.Substring(0, counts);
-                    string newFooter = Footer.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>");
-                    string newHeader = Head.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>");
+                    string newFooter = Footer.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>").Replace("><",">\r\n<");
+                    string newHeader = Head.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>").Replace("><", ">\r\n<");
                     Content = Content.Replace("\t", "").Replace("> <", "><").Replace(" />", "/>");
                     if (Content.Length > (newFooter.Length + newHeader.Length))
                     {
@@ -748,6 +747,10 @@ namespace Tools
             }
             return Content;
         }
+        public static string RemoveEmptyLines(string lines)
+        {
+            return Regex.Replace(lines, @"^\s*$\n|\r", "", RegexOptions.Multiline).TrimEnd();
+        }
         //格式化文件内容
         protected void ContentFormHtml(string htmlpath)
         {
@@ -762,7 +765,8 @@ namespace Tools
                 return;
             }
             htmlcontent = htmlcontent.Replace("\r\n", "");
-            htmlcontent = htmlcontent.Replace("  ", " ").Replace("> <", "><").Replace(" />", "/>");
+            htmlcontent = Regex.Replace(htmlcontent, "\\s{2,}", "");
+            htmlcontent = htmlcontent.Replace("\t", "");
             //<head>头部内容
             try
             {
@@ -771,7 +775,7 @@ namespace Tools
                 {
                     Header = htmlcontent.Substring(countf + 11);
                     int counts = Header.IndexOf("</tl:Header>");
-                    Header = Header.Substring(0, counts).Replace("><", ">\r\n<");
+                    Header = RemoveEmptyLines(Header).Substring(0, counts).Replace("><", ">\r\n<");
                 }
             }
             catch { }
@@ -784,7 +788,7 @@ namespace Tools
                     Head = htmlcontent.Substring(countf + 9);
                     int counts = Head.IndexOf("</tl:Head>");
                     HeadFirstdiv = Head.Substring(0, Head.IndexOf(">") + 1);
-                    Head = Head.Substring(0, counts).Replace("><", ">\r\n<");
+                    Head = RemoveEmptyLines(Head).Substring(0, counts).Replace("><", ">\r\n<");
                 }
             }
             catch { }
@@ -797,7 +801,7 @@ namespace Tools
                     Footer = htmlcontent.Substring(countf + 9);
                     int counts = Footer.IndexOf("</tl:Foot>");
                     FooterFirstdiv = Footer.Substring(0, Footer.IndexOf(">") + 1);
-                    Footer = Footer.Substring(0, counts).Replace("><", ">\r\n<");
+                    Footer = RemoveEmptyLines(Footer).Substring(0, counts).Replace("><", ">\r\n<");
                 }
             }
             catch { }
@@ -894,7 +898,6 @@ namespace Tools
                 catch { return 0; }
             });
             #endregion
-
             #region 创建动态页面
             var createHtmlContent = new Task<int>(() =>
             {
@@ -990,6 +993,7 @@ namespace Tools
                         createNewWebsites.Wait();//动态网页生成完成
                         Init(99, 101, "动态网页生成完成", new Random().Next(50, 100));
                         button1.Enabled = true;
+
                     }
                     else
                     {

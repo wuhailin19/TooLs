@@ -437,82 +437,51 @@ namespace Tools
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        if (dr["ModelType"].ToString() != "-3")
+                        //空模型
+                        if (dr["ModelType"].ToString() == "-3")
+                            promissionstring = defaultSolution(promissionstring, dr);
+                        //表单|留言模型
+                        else if (dr["ModelType"].ToString() == "-1" || dr["ModelType"].ToString() == "0")
                         {
-                            if (dr["ModelType"].ToString() != "-1")
-                            {
-                                model = DBHelper.GetDataSet("select TableName from ContentModel where ModelId=" + dr["ModelType"]);
-                                if (model != null)
-                                {
-                                    tablename = model.Rows[0]["TableName"].ToString();
-                                    count = Convert.ToInt32(DBHelper.GetDataSet("select count(*)as Count_Filed from(select distinct(ParentId) from " + tablename + ") as T").Rows[0][0]);
-                                    if (count > 1)
-                                    {
-                                        dt2 = DBHelper.GetDataSet("select distinct(ParentId)as Count_Filed,count(ParentId)as count_ParentId from  " + tablename + " group by ParentId");
-                                        if (dt2.Rows != null && dt2.Rows.Count > 0)
-                                        {
-                                            foreach (DataRow dr2 in dt2.Rows)
-                                            {
-                                                if (Convert.ToInt32(dr2["count_ParentId"]) > 1)
-                                                {
-                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|30"))
-                                                        promissionstring.Add($"{dr2["Count_Filed"]}|30");
-                                                }
-                                                else
-                                                {
-                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|10"))
-                                                        promissionstring.Add(dr2["Count_Filed"] + "|10");
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
-                                                promissionstring.Add($"{dr["ColumnId"]}|10");
-                                        }
-                                    }
-                                    else if (count == 1)
-                                    {
-                                        dt2 = DBHelper.GetDataSet("select distinct(ParentId)as Count_Filed,count(ParentId)as count_ParentId from  " + tablename + " group by ParentId");
-                                        if (dt2.Rows != null && dt2.Rows.Count > 0)
-                                        {
-                                            foreach (DataRow dr2 in dt2.Rows)
-                                            {
-                                                if (Convert.ToInt32(dr2["count_ParentId"]) > 1)
-                                                {
-                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|30"))
-                                                        promissionstring.Add($"{dr2["Count_Filed"]}|30");
-                                                }
-                                                else
-                                                {
-                                                    if (!promissionstring.Contains($"{dr2["Count_Filed"]}|10"))
-                                                        promissionstring.Add($"{dr2["Count_Filed"]}|10");
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
-                                                promissionstring.Add($"{dr["ColumnId"]}|10");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
-                                            promissionstring.Add($"{dr["ColumnId"]}|10");
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (!promissionstring.Contains($"{dr["ColumnId"]}|30"))
-                                    promissionstring.Add($"{dr["ColumnId"]}|30");
-                            }
+                            if (!promissionstring.Contains($"{dr["ColumnId"]}|30"))
+                                promissionstring.Add($"{dr["ColumnId"]}|30");
+                        }
+                        //外链
+                        else if (dr["ModelType"].ToString() == "-2")
+                        {
+                            promissionstring = defaultSolution(promissionstring, dr);
                         }
                         else
                         {
-                            if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
-                                promissionstring.Add($"{dr["ColumnId"]}|10");
+                            //获取表名
+                            model = DBHelper.GetDataSet("select TableName from ContentModel where ModelId=" + dr["ModelType"]);
+                            if (model != null && model.Rows.Count > 0)
+                            {
+                                tablename = model.Rows[0]["TableName"].ToString();
+                                count = Convert.ToInt32(DBHelper.GetDataSet($"select count(*)as Count_Filed from {tablename} where ParentId={dr["ColumnId"]}").Rows[0][0]);
+                                if (count > 0)
+                                {
+                                    count = Convert.ToInt32(DBHelper.GetDataSet($"select count(*)as Count_Filed from(select distinct(ParentId) from {tablename}) as T").Rows[0][0]);
+                                    //表内数据种类>1
+                                    if (count > 1)
+                                    {
+                                        promissionstring = tableDataTypeCountMoreThanOne(tablename, promissionstring, dr);
+                                    }
+                                    else if (count == 1)
+                                    {
+                                        promissionstring = tableDataTypeCountEqualOne(tablename, promissionstring, dr);
+                                    }
+                                    //如果没有数据给编辑权限
+                                    else
+                                    {
+                                        promissionstring = defaultSolution(promissionstring, dr);
+                                    }
+                                }
+                                else
+                                {
+                                    promissionstring = defaultSolution(promissionstring, dr);
+                                }
+                            }
                         }
                     }
                 }
@@ -535,6 +504,77 @@ namespace Tools
             {
                 return ex.Message;
             }
+        }
+        /// <summary>
+        /// 默认给编辑权限
+        /// </summary>
+        /// <param name="promissionstring"></param>
+        /// <param name="dr"></param>
+        /// <returns></returns>
+        private List<string> defaultSolution(List<string> promissionstring, DataRow dr)
+        {
+            if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
+                promissionstring.Add($"{dr["ColumnId"]}|10");
+
+            return promissionstring;
+        }
+
+        private List<string> tableDataTypeCountEqualOne(string tablename, List<string> promissionstring, DataRow dr)
+        {
+            //获取表内数据量
+            DataTable dt2 = DBHelper.GetDataSet("select ParentId as Count_Filed,count(ParentId) as count_ParentId from  " + tablename + " group by ParentId");
+            if (dt2.Rows != null && dt2.Rows.Count == 1)
+            {
+                //如果该类数量>1则给所有权限
+                if (Convert.ToInt32(dt2.Rows[0]["count_ParentId"]) > 1)
+                {
+                    if (!promissionstring.Contains($"{dt2.Rows[0]["Count_Filed"]}|30"))
+                        promissionstring.Add($"{dt2.Rows[0]["Count_Filed"]}|30");
+                }
+                //如果该类数量<=1则给编辑权限
+                else
+                {
+                    if (!promissionstring.Contains($"{dt2.Rows[0]["Count_Filed"]}|10"))
+                        promissionstring.Add($"{dt2.Rows[0]["Count_Filed"]}|10");
+                }
+            }
+            else
+            {
+                if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
+                    promissionstring.Add($"{dr["ColumnId"]}|10");
+            }
+
+            return promissionstring;
+        }
+
+        private List<string> tableDataTypeCountMoreThanOne(string tablename, List<string> promissionstring, DataRow dr)
+        {
+            //获取数据种类单种数量
+            DataTable dt2 = DBHelper.GetDataSet($"select distinct(ParentId)as Count_Filed,count(ParentId)as count_ParentId from  {tablename} group by ParentId");
+            if (dt2.Rows != null && dt2.Rows.Count > 0)
+            {
+                foreach (DataRow dr2 in dt2.Rows)
+                {
+                    //如果该类数量>1则给所有权限
+                    if (Convert.ToInt32(dr2["count_ParentId"]) > 1)
+                    {
+                        if (!promissionstring.Contains($"{dr2["Count_Filed"]}|30"))
+                            promissionstring.Add($"{dr2["Count_Filed"]}|30");
+                    }
+                    //如果该类数量<=1则给编辑权限
+                    else
+                    {
+                        if (!promissionstring.Contains($"{dr2["Count_Filed"]}|10"))
+                            promissionstring.Add(dr2["Count_Filed"] + "|10");
+                    }
+                }
+            }
+            else
+            {
+                if (!promissionstring.Contains($"{dr["ColumnId"]}|10"))
+                    promissionstring.Add($"{dr["ColumnId"]}|10");
+            }
+            return promissionstring;
         }
 
         ////string newstr = null;
@@ -717,7 +757,7 @@ namespace Tools
 
         private void 快速开发ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            quickCode quickCode = new quickCode();
+            quickCode quickCode = new quickCode("");
             quickCode.Show();
         }
     }

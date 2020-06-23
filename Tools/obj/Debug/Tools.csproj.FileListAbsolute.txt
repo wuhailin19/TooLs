@@ -75,7 +75,6 @@ C:\Users\Symansbon\Documents\WXWork\1688853215416548\Cache\File\2019-08\TooLs\To
 C:\Users\Symansbon\Documents\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.InsertColumns.resources
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\Tools.exe
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\Tools.pdb
-E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\NPinyin.dll
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.CompileWebsite.resources
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.Createpage.resources
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.DataOperas.resources
@@ -107,3 +106,5 @@ E:\工作\wuhailin19\Tools\bin\Debug\ICSharpCode.TextEditor.dll
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\ICSharpCode.TextEditor.dll
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.quickCode.resources
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.csprojAssemblyReference.cache
+E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\Tools.exe.config
+E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\NPinyinPro.dll

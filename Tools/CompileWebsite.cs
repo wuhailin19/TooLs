@@ -32,15 +32,14 @@ namespace Tools
             FolderBrowserDialog openfolder = new FolderBrowserDialog();
             openfolder.ShowDialog();
             textBox1.Text = openfolder.SelectedPath;
+
         }
 
         //处理根目录的文件和文件夹
         protected void GetAllfileanddirectory(string path)
         {
-            string[] filenames = Directory.GetFiles(path);//得到完整路径文件名
-            string filename = string.Empty;
-            string extension = string.Empty;
-            string name = string.Empty;
+            (string[] filenames, string filename, string extension, string name)
+                = (Directory.GetFiles(path), null, null, null);
             for (int i = 0; i < filenames.Length; i++)
             {
                 filename = filenames[i].ToString();
@@ -55,19 +54,18 @@ namespace Tools
                     }
                 }
             }
-
-
+        }
+        private static Tuple<string, int, DataTable> getAllFiles()
+        {
+            return new Tuple<string, int, DataTable>("", 0, new DataTable());
         }
 
         //处理子文件夹和子目录
         protected void DeleteDirectoryinfo(string path)
         {
-            DirectoryInfo dir = new DirectoryInfo(path);
-            FileInfo[] files = null;
-            string ext = null;
-            string path2 = null;
-            string dirname = null;
-            string filename = null;
+            (DirectoryInfo dir, FileInfo[] files, string ext, string path2, string dirname, string filename)
+                = (new DirectoryInfo(path), null, null, null, null, null);
+
             foreach (DirectoryInfo dirInfo in dir.GetDirectories())
             {
                 dirname = dirInfo.ToString();
