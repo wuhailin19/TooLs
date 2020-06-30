@@ -14,6 +14,10 @@ namespace Tools
         public Createpage()
         {
             InitializeComponent();
+            label6.Text = "注意事项：" +
+                "\r\n<head>中内容标记为<tl:Header></tl:Header>" +
+                "\r\n<body>中头部内容标记为<tl:Head></tl:Head>" +
+                "\r\n<body>中脚部内容标记为<tl:Foot></tl:Foot>";
         }
 
         private void Createpage_Load(object sender, EventArgs e)
@@ -48,7 +52,7 @@ namespace Tools
                             //获取Js
                             Js = JSFormHtml(htmlpath + "\\" + filename);
                             //获取Content
-                            Content = GetContentFormHtml(htmlpath + "\\" + filename, name);
+                            Content = GetContentFormHtml(htmlpath + "\\" + filename);
                         }
                     }
                     name = name.Replace("-", "_");
@@ -83,7 +87,7 @@ namespace Tools
                             "\r\n</asp:Content>\r\n";
                         if (name.Contains("ajax"))
                         {
-                            pageheader = "<%@ Page Title=\"\" Language=\"C#\" AutoEventWireup=\"true\" CodeFile=\"" + name + ".aspx.cs\" Inherits=\"" + name + "\" %>";
+                            pageheader = "<%@ Page Title=\"\" Language=\"C#\" AutoEventWireup=\"true\" CodeFile=\"" + name + ".aspx.cs\" Inherits=\"" + name + "\" %>\r\n";
                             pagecontent = Content;
                         }
                         FileStreamCreatefile(
@@ -692,7 +696,7 @@ namespace Tools
             return Js;
         }
         //获取Content
-        protected string GetContentFormHtml(string htmlpath, string pagename)
+        protected string GetContentFormHtml(string htmlpath)
         {
             string htmlcontent = ReadContentFromFile(htmlpath);
             htmlcontent = htmlcontent.Replace("\r\n", "");
@@ -708,24 +712,24 @@ namespace Tools
                     Content = htmlcontent.Substring(countf + 6);
                     int counts = Content.IndexOf("<script");
                     Content = Content.Substring(0, counts);
-                    string newFooter = Footer.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>").Replace("><",">\r\n<");
-                    string newHeader = Head.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>").Replace("><", ">\r\n<");
+                    string newFooter = ""; string newHeader = "";
+                    if (!string.IsNullOrEmpty(Footer))
+                        newFooter = Footer.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>").Replace("><", ">\r\n<");
+                    if (!string.IsNullOrEmpty(Head))
+                        newHeader = Head.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>").Replace("><", ">\r\n<");
                     Content = Content.Replace("\t", "").Replace("> <", "><").Replace(" />", "/>");
+
                     if (Content.Length > (newFooter.Length + newHeader.Length))
                     {
-                        if (Content.Contains(newHeader) && Content.Contains(newFooter))
-                        {
+                        if (Content.Contains(newHeader))
                             Content = Content.Replace(newHeader, "");
+                        else if (Content.Contains(newFooter))
                             Content = Content.Replace(newFooter, "");
-                        }
                         else
                         {
-                            //int counhe = newHeader.Length;
-                            //Content = Content.Remove(0, counhe);
                             if (Content.Contains(FooterFirstdiv))
                             {
                                 Content = Content.Replace(FooterFirstdiv, "");
-                                //Content = Content.Substring(0, countt);
                             }
                         }
                         Content = Content.Replace("<tl:Head>", "");

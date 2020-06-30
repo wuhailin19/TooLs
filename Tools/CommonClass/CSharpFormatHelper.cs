@@ -64,7 +64,7 @@ namespace Tools
             int count = 2;
             int times = 0;
             string[] lines = code.Split('\n').Length>1? code.Split('\n'): code.Split('\r');
-            string[] doms = { "head ", "body", "asp:repeater", "section","script", "div", "ul", "ol", "header", "asp:content " };
+            string[] doms = { "head ", "body", "asp:repeater", "section","script", "div", "ul", "ol", "header", "asp:content "};
             string linestr = null;
             for (int i = 0; i < lines.Length; i++)
             {
@@ -73,7 +73,8 @@ namespace Tools
                     if (lines[i].ToLower().TrimStart().StartsWith($"<{dom}")
                         && lines[i].ToLower().TrimStart().EndsWith($"</{dom}>"))
                     {
-                        linestr = Indent(count * times) + lines[i].TrimStart() + "\n";
+                        //linestr = Indent(count * times) + lines[i].TrimStart() + "\n";
+                        linestr = Indent(count * times) + ReplaceLastStr(lines[i].TrimEnd(), $"</{dom.TrimEnd()}>", $"\n{Indent(count * times)}</{dom.TrimEnd()}>") + "\n";
                         break;
                     }
                     else if (lines[i].ToLower().TrimStart().StartsWith($"<{dom}")

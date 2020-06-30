@@ -108,3 +108,4 @@ E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.csprojAssemblyReference.cache
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\Tools.exe.config
 E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\bin\Debug\NPinyinPro.dll
+E:\企业微信下载\WXWork\1688853215416548\Cache\File\2019-08\TooLs\Tools\obj\Debug\Tools.quickCodebeta.resources

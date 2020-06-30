@@ -32,7 +32,9 @@ namespace Tools
             startdoms.Add("<head>", "</head>");
             startdoms.Add("<head runat=\"server\">", "</head>");
             startdoms.Add("<html", "</html>");
+            startdoms.Add("<div", "</div>");
             startdoms.Add("<body", "</body>");
+            startdoms.Add("<footer", "</footer>");
             startdoms.Add("<section", "</section>");
             startdoms.Add("<header", "</header>");
             startdoms.Add("#region", "#endregion");

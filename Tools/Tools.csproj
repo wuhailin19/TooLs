@@ -121,8 +121,14 @@
     <Compile Include="quickCode.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="quickCode.Designer.cs">
+    <Compile Include="quickCode.designer.cs">
       <DependentUpon>quickCode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="quickCodebeta.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="quickCodebeta.Designer.cs">
+      <DependentUpon>quickCodebeta.cs</DependentUpon>
     </Compile>
     <Compile Include="DAL\ReadXMLdoc.cs" />
     <Compile Include="testimg.cs">
@@ -158,6 +164,9 @@
     </Compile>
     <EmbeddedResource Include="quickCode.resx">
       <DependentUpon>quickCode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="quickCodebeta.resx">
+      <DependentUpon>quickCodebeta.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="testimg.resx">
       <DependentUpon>testimg.cs</DependentUpon>

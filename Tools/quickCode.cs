@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.TextEditor;
 using ICSharpCode.TextEditor.Document;
+using ICSharpCode.TextEditor.Util;
 using NPinyin;
 using System;
 using System.Collections;
@@ -16,18 +17,22 @@ using System.Windows.Forms;
 /// </summary>
 namespace Tools
 {
+
     public partial class quickCode : Form
     {
+        #region Filed
         private Dictionary<string, string> default_fileds = new Dictionary<string, string>();//数据表默认数据
         private Dictionary<string, string> insert_fileds = new Dictionary<string, string>();//数据表新增数据
-        private string webpath = null;//网站路径
-        public quickCode(string strs)
+        private bool IsBehideCode = false;//全局变量指示现在的代码是不是后台代码
+        bool panelIsShow = false;//是否显示数据框标识
+        //private int pagedrcount = 0;//PageDr数量标识
+        #endregion
+
+        public quickCode()
         {
-            webpath = strs;
-
             InitializeComponent();
-
             InitTextEditor();
+
         }
         /// <summary>
         /// 初始化控件
@@ -44,7 +49,65 @@ namespace Tools
             txt_contentextension.Encoding = System.Text.Encoding.UTF8;
         }
 
+        #region 页面事件
+        /// <summary>
+        /// 重命名标题
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button14_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(TittleRandom(table_select.SelectedValue.ToString()));
+        }
+        /// <summary>
+        /// 格式化OrderId
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button16_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(OrderIdRandom(table_select.SelectedValue.ToString()));
+        }
+        /// <summary>
+        /// 随机时间
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button15_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(AddTimeRandom(table_select.SelectedValue.ToString()));
+        }
+        /// <summary>
+        /// 栏目选择项改变
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void column_select_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            default_fileds["ParentId"] = column_select.SelectedValue.ToString();
 
+            string default_filedstr = null;
+            foreach (string key in default_fileds.Keys)
+            {
+                default_filedstr += $"{key}:{default_fileds[key]}\r\n";
+            }
+            txt_contentextension.Text = default_filedstr;
+            txt_contentextension.ActiveTextAreaControl.Caret.Line = txt_contentextension.ActiveTextAreaControl.Caret.Line;
+            DataTable dt = DBHelper.GetDataSet($"select Name from ColumnCategory where ColumnId=(select ParentId from ColumnCategory where ColumnId={column_select.SelectedValue})");
+            if (dt.Rows.Count > 0 && dt != null)
+            {
+                lbl_parentname.Text = $"父级【{dt.Rows[0]["Name"]}】";
+            }
+            else
+            {
+                lbl_parentname.Text = $"父级【系统栏目】";
+            }
+        }
+        /// <summary>
+        /// 编辑框按键触发事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TextArea_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.G)
@@ -75,53 +138,30 @@ namespace Tools
                 txt_contentID.ActiveTextAreaControl.TextArea.InsertString(deletenotesCode(selecttxt));
             }
         }
-        /// <summary>
-        /// 注释代码
-        /// </summary>
-        private string notesCode(string code)
-        {
-            StringBuilder sbr = new StringBuilder();
-            string[] lines = code.Split('\n').Length > 1 ? code.Split('\n') : code.Split('\r');
-            if (IsBehideCode)
-            {
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    if (i == 0)
-                        sbr.Append($"//{lines[i].Trim()}\n");
-                    else
-                        sbr.Append($"//{lines[i].Trim()}\n");
-                }
-            }
-            else
-            {
-                sbr.Append($"<!--{code}-->");
-            }
-            return sbr.ToString().TrimEnd('\n');
-        }/// <summary>
-         /// 取消注释代码
-         /// </summary>
-        private string deletenotesCode(string code)
-        {
-            StringBuilder sbr = new StringBuilder();
-            string[] lines = code.Split('\n').Length > 1 ? code.Split('\n') : code.Split('\r');
-            if (IsBehideCode)
-            {
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    sbr.Append($"{lines[i].Trim().TrimStart('/')}\n");
-                }
-            }
-            else
-            {
-                code = code.Replace("<!--", "").Replace("-->", "");
-                sbr.Append(code);
-            }
-            return sbr.ToString().TrimEnd('\n');
-        }
-        public void myevent() => btn_testlink_Click(this, new EventArgs());
 
         /// <summary>
-        /// 静态页面路径选择
+        /// 向数据表中添加字段PId
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button17_Click(object sender, EventArgs e)
+        {
+            string database = database_select.Text;//数据库名称
+            string tablename = table_select.SelectedValue.ToString();//数据表名
+            string sql = $"use {database} alter table {tablename} add PId int";
+            try
+            {
+                DBHelper.ExecuteCommand(sql);
+                MessageBox.Show("添加成功");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        public void myevent() => btn_testlink_Click(this, new EventArgs());
+        /// <summary>
+        /// 页面路径选择
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -205,7 +245,6 @@ namespace Tools
             IsBehideCode = false;
             button4_Click(sender, e);
         }
-
         /// <summary>
         /// 右键母版页字段菜单
         /// </summary>
@@ -234,21 +273,32 @@ namespace Tools
                 MessageBox.Show(ex.Message);
             }
         }
+        /// <summary>
+        /// 页面加载触发
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void quickCode_Load(object sender, EventArgs e)
         {
             BindDropDownList();
             Init();
-            if (!string.IsNullOrEmpty(webpath))
-            {
-                this.textBox3.Text = webpath;
-                myevent();
-            }
         }
         /// <summary>
         /// 初始化窗体
         /// </summary>
         private void Init()
         {
+            //绑定字段类别
+            Hashtable hashs = new Hashtable();
+            hashs.Add("", "普通");
+            hashs.Add("en", "英文");
+            hashs.Add("linkurl_", "链接");
+            hashs.Add("bg", "背景图片");
+            type_select.DataSource = HashToDataTable(hashs);
+            type_select.DisplayMember = "Value";
+            type_select.ValueMember = "Key";
+            type_select.Text = "普通";
+
             //绑定控件名
             Hashtable hash = new Hashtable();
             hash.Add("TextType", "单行文本框");
@@ -262,17 +312,6 @@ namespace Tools
             fileds_select.DisplayMember = "Value";
             fileds_select.ValueMember = "Key";
             fileds_select.Text = "单行文本框";
-
-            //绑定字段类别
-            Hashtable hashs = new Hashtable();
-            hashs.Add("", "普通");
-            hashs.Add("en", "英文");
-            hashs.Add("linkurl_", "链接");
-            hashs.Add("bg", "背景图片");
-            type_select.DataSource = HashToDataTable(hashs);
-            type_select.DisplayMember = "Value";
-            type_select.ValueMember = "Key";
-            type_select.Text = "普通";
 
             //设置页面DataRow变量
             pagedr_select.Text = "PageDr";
@@ -369,7 +408,7 @@ namespace Tools
             BindDropDounlists(str, ref result);
             BindColumnList();
         }
-        //快速添加字段
+        //快速添加字段事件
         private void button3_Click(object sender, EventArgs e)
         {
             ModelFiled model = new ModelFiled();
@@ -388,17 +427,17 @@ namespace Tools
                         model.Type = "TextType";
                         if (type_select.Text == "普通")
                         {
-                            count = ModelFiled_dal.GetFiledCount(modelid, "title");
+                            count = ModelFiled_dal.GetFiledCount(modelid, "chtitle_");
                             if (string.IsNullOrEmpty(filedname))
                             {
                                 filedname = "标题" + NumberToChinese(count + 1);
                             }
-                            model.FiledName = "title_" + NumberToEnglish(count + 1);
+                            model.FiledName = "chtitle_" + NumberToEnglish(count + 1);
                             model.Alias = filedname;
                         }
                         else if (type_select.Text == "英文")
                         {
-                            count = ModelFiled_dal.GetFiledCount(modelid, "entitle");
+                            count = ModelFiled_dal.GetFiledCount(modelid, "entitle_");
                             model.FiledName = type_select.SelectedValue + "title_" + NumberToEnglish(count + 1);
                             if (string.IsNullOrEmpty(filedname))
                             {
@@ -408,7 +447,7 @@ namespace Tools
                         }
                         else
                         {
-                            count = ModelFiled_dal.GetFiledCount(modelid, "linkurl");
+                            count = ModelFiled_dal.GetFiledCount(modelid, "linkurl_");
                             model.FiledName = type_select.SelectedValue + NumberToEnglish(count + 1);
                             if (string.IsNullOrEmpty(filedname))
                             {
@@ -423,7 +462,7 @@ namespace Tools
                         model.Type = "MultipleTextType";
                         if (type_select.Text == "英文")
                         {
-                            count = ModelFiled_dal.GetFiledCount(modelid, "enword");
+                            count = ModelFiled_dal.GetFiledCount(modelid, "enword_");
                             if (string.IsNullOrEmpty(filedname))
                             {
                                 filedname = "英文文字" + NumberToChinese(count + 1);
@@ -433,15 +472,15 @@ namespace Tools
                         }
                         else
                         {
-                            count = ModelFiled_dal.GetFiledCount(modelid, "word");
+                            count = ModelFiled_dal.GetFiledCount(modelid, "chword_");
                             if (string.IsNullOrEmpty(filedname))
                             {
                                 filedname = "文字" + NumberToChinese(count + 1);
                             }
                             model.Alias = filedname;
-                            model.FiledName = "word_" + NumberToEnglish(count + 1);
+                            model.FiledName = "chword_" + NumberToEnglish(count + 1);
                         }
-
+                        selecttxt = selecttxt.Replace("<br/>", "\r\n").Replace("<br >", "\r\n").Replace("<br>", "\r\n").Replace("</p>", "\r\n").Replace("<p>", "");
                         model.Validation = "";
                         break;
                     case "Editor":
@@ -455,6 +494,7 @@ namespace Tools
                         model.Alias = filedname;
                         model.FiledName = "desc_" + NumberToEnglish(count + 1);
                         model.Validation = "";
+                        selecttxt = selecttxt.Replace("\r\n", "").Replace("\n", "").Replace("\t", "");
                         selecttxt = System.Web.HttpUtility.HtmlEncode(selecttxt);
                         break;
                     case "PicType":
@@ -533,7 +573,8 @@ namespace Tools
                 model.AddTime = DateTime.Now;
                 model.ModelId = modelid;
                 model.OrderId = ModelFiled_dal.GetTopOrderID("ModelFiled");
-                insert_fileds.Add(model.FiledName, $"'{selecttxt}'");
+                if (!model.FiledName.Contains("imglist_"))
+                    insert_fileds.Add(model.FiledName, $"'{selecttxt}'");
                 ModelFiled_dal.Add(model);
                 //生成modelhtml
                 StringBuilder sbr = new StringBuilder();
@@ -546,7 +587,6 @@ namespace Tools
                 MessageBox.Show(ex.Message);
             }
         }
-
         /// <summary>
         /// 数据表下拉选项切换
         /// </summary>
@@ -622,6 +662,7 @@ namespace Tools
         {
             try
             {
+                tools_addfiled.DropDownItems.Clear();
                 ToolStripItem toolStripItemf = new ToolStripMenuItem("标题");
                 if (table_select.Text.Contains("Article") && !table_select.Text.Contains("Single"))
                 {
@@ -696,7 +737,6 @@ namespace Tools
             txt_contentextension.Text = default_filedstr;
             txt_contentextension.ActiveTextAreaControl.Caret.Line = default_filedstr.Length;
         }
-
         /// <summary>
         /// 右键字段菜单点击事件
         /// </summary>
@@ -721,11 +761,19 @@ namespace Tools
                 if (item.Name.Contains("word_") || item.Name.Contains("Summy"))
                 {
                     txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Eval(\"{item.Name}\").ToString().Replace(\"\\r\\n\",\"<br/>\")%>") : ($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\").Replace(\"\\r\\n\",\"<br/>\")%>"));
+                    selectcont = selectcont.Replace("<br/>", "\r\n").Replace("<br >", "\r\n").Replace("<br>", "\r\n").Replace("</p>", "\r\n").Replace("<p>", "");
+                    UpdateFiledCont(item.Name, selectcont);
                 }
                 else if (item.Name.Contains("desc_") || item.Name.Contains("Content"))
                 {
                     txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Server.HtmlDecode(Eval(\"{item.Name}\").ToString())%>") : ($"<%={masterpage}GetDataRowEditorValue({pagedr},\"{item.Name}\")%>"));
+                    selectcont = selectcont.Replace("\r\n", "").Replace("\n", "").Replace("\t", "");
                     selectcont = System.Web.HttpUtility.HtmlEncode(selectcont);
+                    UpdateFiledCont(item.Name, selectcont);
+                }
+                else if (item.Name.Contains("imglist_"))
+                {
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Eval(\"{item.Name}\")%>") : ($"<%=WebUtility.GetImgeList(GetDataRowsValue({pagedr},\"{item.Name}\"),1)%>"));
                 }
                 else if (item.Name.ToLower().Contains("time"))
                 {
@@ -734,20 +782,13 @@ namespace Tools
                 else
                 {
                     txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Eval(\"{item.Name}\")%>") : ($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\")%>"));
+                    UpdateFiledCont(item.Name, selectcont);
                 }
-                UpdateFiledCont(item.Name, selectcont);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-        }
-        private void quickCode_KeyDown(object sender, KeyEventArgs e)
-        {
-            //if (e.Control && e.KeyCode == Keys.Z)
-            //{
-            //    txt_contentID.Text=txt_contentID.Text.Remove(txt_contentID.Text.Length - 1);
-            //}
         }
         //切换文本框编码为Html
         private void button4_Click(object sender, EventArgs e)
@@ -769,7 +810,7 @@ namespace Tools
             IsBehideCode = false;
             button4_Click(sender, e);
             page_select_SelectedIndexChanged(sender, e);
-            DropDownList3_SelectedIndexChanged(sender, e);
+            //DropDownList3_SelectedIndexChanged(sender, e);
         }
         /// <summary>
         /// 返回到页面后台代码
@@ -813,6 +854,301 @@ namespace Tools
             txt_contentID.ActiveTextAreaControl.Caret.Line = codecontent.Length;
             txt_contentextension.Text = str;
         }
+        /// <summary>
+        /// Ctrl+s保存更改
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void quickCode_KeyDown_1(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S)//按下ctrl+s
+            {
+                string filenames = textBox3.Text + "\\" + page_select.Text;//文件路径
+                string content = txt_contentID.Text;
+                if (IsBehideCode)
+                {
+                    filenames = filenames + ".cs";
+                }
+                try
+                {
+                    if (File.Exists(filenames))
+                    {
+                        FileStream fs = new FileStream(filenames, FileMode.Create, FileAccess.Write);
+                        StreamWriter sw = new StreamWriter(fs, Encoding.UTF8);
+                        sw.WriteLine(content);
+                        sw.Close();
+                        fs.Close();
+                        MessageBox.Show("保存成功");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        //模型栏目配对
+        private void button10_Click(object sender, EventArgs e)
+        {
+            string modelid = ModelFiled_dal.GetModelIdByExpression($"TableName='{table_select.SelectedValue}'", "ModelId")["ModelId"].ToString();
+            try
+            {
+                string sql = $"update ColumnCategory set ModelType={modelid} " +
+                    $"where ColumnId={column_select.SelectedValue}";
+                DBHelper.ExecuteCommand(sql);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        /// <summary>
+        /// 代码折叠
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txt_contentID_TextChanged(object sender, EventArgs e)
+        {
+            //更新，以便进行代码折叠
+            txt_contentID.Document.FoldingManager.UpdateFoldings(null, null);
+        }
+        /// <summary>
+        /// 格式化代码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button9_Click(object sender, EventArgs e)
+        {
+            int linecount = txt_contentID.ActiveTextAreaControl.Caret.Line;
+            if (IsBehideCode)
+                txt_contentID.Text = CSharpFormatHelper.FormatCSharpCode(txt_contentID.Text);
+            else
+                txt_contentID.Text = CSharpFormatHelper.FormatHtmlCode(txt_contentID.Text);
+            txt_contentID.ActiveTextAreaControl.Caret.Line = linecount;
+        }
+        /// <summary>
+        /// 查看字段
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button11_Click(object sender, EventArgs e)
+        {
+            int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.SelectedValue + "'", "ModelId")["ModelId"]);
+            StringBuilder sbr = new StringBuilder();
+            ModelFiled_dal.CreateModelHTML(modelid, ref sbr);
+            txt_contentextension.Text = sbr.ToString();
+            txt_contentextension.ActiveTextAreaControl.Caret.Line = sbr.Length;
+        }
+        /// <summary>
+        /// 嵌套Repeater在代码外层
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_repeater_Click(object sender, EventArgs e)
+        {
+            string Tablename = table_select.SelectedValue.ToString();
+            string repeater_name = txt_repeatername.Text.Trim();
+            if (string.IsNullOrEmpty(repeater_name))
+            {
+                repeater_name = Tablename.Contains('_') ? !string.IsNullOrEmpty(Tablename.Split('_')[1]) ? Tablename.Split('_')[1] : "" : Tablename;
+            }
+            StringBuilder sbr = new StringBuilder();
+            string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+            txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+
+            sbr.Append($"<!--Repeater_{repeater_name}_Start-->\n");
+            sbr.Append($"<asp:Repeater ID=\"Repeater_{repeater_name}\" runat=\"server\">\n");
+            sbr.Append("                <ItemTemplate>\n");
+            sbr.Append(selectcont + "\n");
+            sbr.Append("                </ItemTemplate>\n");
+            sbr.Append("   </asp:Repeater>\n");
+            sbr.Append($"<!--Repeater_{repeater_name}_End-->");
+
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(sbr.ToString());
+        }
+        /// <summary>
+        /// 置顶（开）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_open_Click(object sender, EventArgs e)
+        {
+            tools_close.Checked = false;
+            tools_open.Checked = true;
+            TopMost = true;
+        }
+        /// <summary>
+        /// 置顶（关）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_close_Click(object sender, EventArgs e)
+        {
+            tools_open.Checked = false;
+            tools_close.Checked = true;
+            TopMost = false;
+        }
+        /// <summary>
+        /// 切换数据显示框显示隐藏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button12_Click(object sender, EventArgs e)
+        {
+            if (panelIsShow)
+            {
+                groupBox2.Hide();
+                button12.Text = "显示数据窗口";
+            }
+            else
+            {
+                groupBox2.Show();
+                button12.Text = "隐藏数据窗口";
+            }
+            panelIsShow = panelIsShow == false ? true : false;
+        }
+        /// <summary>
+        /// 使用数据显示框内字段及内容进行添加操作
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button13_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string str = string.IsNullOrEmpty(txt_count.Text) ? "0" : txt_count.Text;
+                int count = Convert.ToInt32(str) == 0 ? 1 : Convert.ToInt32(str);
+                if (count != 0)
+                {
+                    AddInTable(default_fileds, table_select.SelectedValue.ToString(), count);
+                }
+                else
+                {
+                    AddInTable(default_fileds, table_select.SelectedValue.ToString());
+                }
+                MessageBox.Show("添加成功");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        /// <summary>
+        /// 右键生成查询语句
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_codesql_Click(object sender, EventArgs e)
+        {
+            string str = GetEasyFieldsNewString(table_select.SelectedValue.ToString());//字段字符串
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(str);
+        }
+        //生成网站目录
+        private void tools_createpage_Click(object sender, EventArgs e)
+        {
+            Createpage create = new Createpage();
+            create.Show();
+        }
+        /// <summary>
+        /// 转换字符串为stringbuilder
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_stringbuilder_Click(object sender, EventArgs e)
+        {
+            string code = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+            string[] lines = code.Split('\n').Length > 1 ? code.Split('\n') : code.Split('\r');
+            StringBuilder sbr = new StringBuilder();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                sbr.Append($"sbr.Append(\"{lines[i].Trim().Replace("\"", "\\\"")}\");\n");
+            }
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+            txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(sbr.ToString());
+        }
+        /// <summary>
+        /// Tools页面
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tools_toolpage_Click(object sender, EventArgs e)
+        {
+            DataTools tools = new DataTools();
+            tools.Show();
+        }
+        /// <summary>
+        /// 添加当前栏目子栏目
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button18_Click(object sender, EventArgs e)
+        {
+            string database = database_select.Text;//数据库名称
+            string sql;
+            string columnname = txt_cloumnname.Text.Trim();//栏目名
+            int maxorderid = Convert.ToInt32(DBHelper.GetDataSet("select max(orderid) as maxorderid from ColumnCategory").Rows[0]["maxorderid"]);
+            string parentid = column_select.SelectedValue.ToString();
+            try
+            {
+                if (checkbox_issystem.Checked)//系统栏目
+                {
+                    sql = $"INSERT INTO [" + database + "].[dbo].[ColumnCategory]([ParentId],[SystemId],[ModelType],[Name],[EnglishName],[ColumnImage],[opentype],[OrderId],[Family],[KeyTitle],[SearchKey],[Description],[ColumnUrl],[IsShow],[Level],[ContentNum],[AddTime],[ChildrenCount],[IsMutiImages],[Url]) Values " +
+                                "(0,1,-3,'" + columnname + "','','','_self'," + (maxorderid + 1) + ",'','" + columnname + "','" + columnname + "','" + columnname + "','','" + !checkbox_isshow.Checked + "'," + 0 + ",0,'" + DateTime.Now + "',0,'False','')";
+
+                    if (DBHelper.ExecuteCommand(sql) > 0)
+                    {
+                        BindColumnList();
+                    }
+                }
+                else
+                {
+                    DataTable dt = DBHelper.GetDataSet("select orderid,Level,family from ColumnCategory where ColumnId=" + parentid);
+                    int orderid = 0;
+                    int Level = 0;
+                    string family = null;
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        orderid = Convert.ToInt32(dt.Rows[0]["orderid"]);
+                        Level = Convert.ToInt32(dt.Rows[0]["Level"]);
+                        family = string.IsNullOrEmpty(dt.Rows[0]["family"].ToString()) ? $",{parentid}," : $"{dt.Rows[0]["family"].ToString()}{parentid},";
+                    }
+                    sql = $"INSERT INTO [" + database + "].[dbo].[ColumnCategory]([ParentId],[SystemId],[ModelType],[Name],[EnglishName],[ColumnImage],[opentype],[OrderId],[Family],[KeyTitle],[SearchKey],[Description],[ColumnUrl],[IsShow],[Level],[ContentNum],[AddTime],[ChildrenCount],[IsMutiImages],[Url]) Values " +
+                              "(" + parentid + ",1,-3,'" + columnname + "','','','_self'," + (maxorderid + 1) + ",'" + family + "','" + columnname + "','" + columnname + "','" + columnname + "','','" + !checkbox_isshow.Checked + "'," + (Level + 1) + ",0,'" + DateTime.Now + "',0,'False','')";
+                    if (DBHelper.ExecuteCommand(sql) > 0)
+                    {
+                        DBHelper.ExecuteCommand("update [" + database + "].[dbo].[ColumnCategory] set ChildrenCount=ChildrenCount+1 where ColumnId=" + parentid + "");
+                        BindColumnList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        /// <summary>
+        /// 字段类型切换（初始化）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fileds_select_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                type_select.Text = "普通";
+                txt_filedname.Text = "";
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        #endregion
+
+        #region 页面所用方法
         /// <summary>
         /// 生成精简字段字符串
         /// </summary>
@@ -885,7 +1221,7 @@ namespace Tools
                 }
                 orderby += ");";
             }
-            swhere = $" and ParentId={pid}";
+            swhere = $" and ParentId={(string.IsNullOrEmpty(pid) ? column_select.SelectedValue.ToString() : pid)}";
 
             //筛选不需要的字段
             string fild = "SystemId,Hits,KeyWord,Description,IsTop,IsRecommend,IsHot,IsSlide,IsColor,OrderId,AddUserName,LastEditUserName,LastEditDate,CheckedLevel";
@@ -902,7 +1238,6 @@ namespace Tools
                     stringBuilder.Append("" + dr["Name"] + ",");
                 }
             }
-            stringBuilder.Append("\n");
             stringBuilder.Remove(stringBuilder.Length - 1, 1);
             stringBuilder.Append($"\",\n \"IsColor=0{swhere}\",\n \"IsTop desc,IsRecommend desc,IsHot desc,IsSlide desc,{orderby}\n");
             stringBuilder.Append("if(dt!=null&&dt.Rows.Count>0)\n");
@@ -911,8 +1246,6 @@ namespace Tools
             stringBuilder.Append("}\n");
             return stringBuilder.ToString();
         }
-
-        #region 页面所用方法
         /// <summary>
         /// 获取图片宽高像素
         /// </summary>
@@ -928,7 +1261,7 @@ namespace Tools
                     string newstr = bitmap.Width + "*" + bitmap.Height;
                     return newstr;
                 }
-                catch (Exception ex)
+                catch
                 {
                     return "";
                 }
@@ -1121,13 +1454,23 @@ namespace Tools
             try
             {
                 DataTable dt = null;
-                dt = DBHelper.GetDataSet($"use {database_select.Text} select ColumnId,Name from ColumnCategory order by OrderId asc");
+                dt = DBHelper.GetDataSet($"use {database_select.Text} select ColumnId,(Name+'【'+cast(ColumnId as nvarchar)+'】')as CName from ColumnCategory order by OrderId desc");
+
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     this.column_select.DataSource = dt;
-                    this.column_select.DisplayMember = "Name";
+                    this.column_select.DisplayMember = "CName";
                     this.column_select.ValueMember = "ColumnId";
-                    this.column_select.Text = dt.Rows[0]["Name"].ToString();
+                    this.column_select.Text = dt.Rows[0]["CName"].ToString();
+                }
+                dt = DBHelper.GetDataSet($"select Name from ColumnCategory where ColumnId=(select ParentId from ColumnCategory where ColumnId={column_select.SelectedValue})");
+                if (dt.Rows.Count > 0 && dt != null)
+                {
+                    lbl_parentname.Text = $"父级【{dt.Rows[0]["Name"]}】";
+                }
+                else
+                {
+                    lbl_parentname.Text = $"父级【系统栏目】";
                 }
             }
             catch (Exception ex)
@@ -1300,172 +1643,50 @@ namespace Tools
             }
             return s_list;
         }
-        #endregion
-        private bool IsBehideCode = false;//全局变量指示现在的代码是不是后台代码
-                                          //Ctrl+s保存更改
-        private void quickCode_KeyDown_1(object sender, KeyEventArgs e)
-        {
-            if (e.Control && e.KeyCode == Keys.S)//按下ctrl+s
-            {
-                string filenames = textBox3.Text + "\\" + page_select.Text;//文件路径
-                string content = txt_contentID.Text;
-                if (IsBehideCode)
-                {
-                    filenames = filenames + ".cs";
-                }
-                try
-                {
-                    if (File.Exists(filenames))
-                    {
-                        FileStream fs = new FileStream(filenames, FileMode.Create, FileAccess.Write);
-                        StreamWriter sw = new StreamWriter(fs);
-                        sw.WriteLine(content);
-                        sw.Close();
-                        fs.Close();
-                        MessageBox.Show("保存成功");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
-        }
-        //模型栏目配对
-        private void button10_Click(object sender, EventArgs e)
-        {
-            string modelid = ModelFiled_dal.GetModelIdByExpression($"TableName='{table_select.SelectedValue}'", "ModelId")["ModelId"].ToString();
-            try
-            {
-                string sql = $"update ColumnCategory set ModelType={modelid} " +
-                    $"where ColumnId={column_select.SelectedValue}";
-                DBHelper.ExecuteCommand(sql);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
         /// <summary>
-        /// 代码折叠
+        /// 注释代码
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void txt_contentID_TextChanged(object sender, EventArgs e)
+        private string notesCode(string code)
         {
-            //更新，以便进行代码折叠
-            txt_contentID.Document.FoldingManager.UpdateFoldings(null, null);
-        }
-        /// <summary>
-        /// 格式化代码
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button9_Click(object sender, EventArgs e)
-        {
-            int linecount = txt_contentID.ActiveTextAreaControl.Caret.Line;
+            StringBuilder sbr = new StringBuilder();
+            string[] lines = code.Split('\n').Length > 1 ? code.Split('\n') : code.Split('\r');
             if (IsBehideCode)
-                txt_contentID.Text = CSharpFormatHelper.FormatCSharpCode(txt_contentID.Text);
-            else
-                txt_contentID.Text = CSharpFormatHelper.FormatHtmlCode(txt_contentID.Text);
-            txt_contentID.ActiveTextAreaControl.Caret.Line = linecount;
-        }
-        /// <summary>
-        /// 查看字段
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button11_Click(object sender, EventArgs e)
-        {
-            int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.SelectedValue + "'", "ModelId")["ModelId"]);
-            StringBuilder sbr = new StringBuilder();
-            ModelFiled_dal.CreateModelHTML(modelid, ref sbr);
-            txt_contentextension.Text = sbr.ToString();
-            txt_contentextension.ActiveTextAreaControl.Caret.Line = sbr.Length;
-        }
-        /// <summary>
-        /// 嵌套Repeater在代码外层
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void tools_repeater_Click(object sender, EventArgs e)
-        {
-            string Tablename = table_select.SelectedValue.ToString();
-            string repeater_name = txt_repeatername.Text.Trim();
-            if (string.IsNullOrEmpty(repeater_name))
             {
-                repeater_name = Tablename.Contains('_') ? !string.IsNullOrEmpty(Tablename.Split('_')[1]) ? Tablename.Split('_')[1] : "" : Tablename;
-            }
-            StringBuilder sbr = new StringBuilder();
-            string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
-            txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
-            txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
-
-            sbr.Append($"<!--Repeater_{repeater_name}_Start-->\n");
-            sbr.Append($"<asp:Repeater ID=\"Repeater_{repeater_name}\" runat=\"server\">\n");
-            sbr.Append("                <ItemTemplate>\n");
-            sbr.Append(selectcont + "\n");
-            sbr.Append("                </ItemTemplate>\n");
-            sbr.Append("   </asp:Repeater>\n");
-            sbr.Append($"<!--Repeater_{repeater_name}_End-->");
-
-            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(sbr.ToString());
-        }
-        /// <summary>
-        /// 置顶（开）
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void tools_open_Click(object sender, EventArgs e)
-        {
-            tools_close.Checked = false;
-            tools_open.Checked = true;
-            TopMost = true;
-        }
-        /// <summary>
-        /// 置顶（关）
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void tools_close_Click(object sender, EventArgs e)
-        {
-            tools_open.Checked = false;
-            tools_close.Checked = true;
-            TopMost = false;
-        }
-        bool panelIsShow = false;
-        private void button12_Click(object sender, EventArgs e)
-        {
-            if (panelIsShow)
-            {
-                groupBox2.Hide();
-                button12.Text = "显示数据显示";
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (i == 0)
+                        sbr.Append($"//{lines[i].Trim()}\n");
+                    else
+                        sbr.Append($"//{lines[i].Trim()}\n");
+                }
             }
             else
             {
-                groupBox2.Show();
-                button12.Text = "隐藏数据显示";
+                sbr.Append($"<!--{code}-->");
             }
-            panelIsShow = panelIsShow == false ? true : false;
+            return sbr.ToString().TrimEnd('\n');
         }
-        //刷新栏目列表
-        private void button14_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 取消注释代码
+        /// </summary>
+        private string deletenotesCode(string code)
         {
-        }
-
-        private void button13_Click(object sender, EventArgs e)
-        {
-            try
+            StringBuilder sbr = new StringBuilder();
+            string[] lines = code.Split('\n').Length > 1 ? code.Split('\n') : code.Split('\r');
+            if (IsBehideCode)
             {
-                AddInTable(default_fileds, table_select.SelectedValue.ToString());
-                MessageBox.Show("添加成功");
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    sbr.Append($"{lines[i].Trim().TrimStart('/')}\n");
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message);
+                code = code.Replace("<!--", "").Replace("-->", "");
+                sbr.Append(code);
             }
+            return sbr.ToString().TrimEnd('\n');
         }
-
 
         /// <summary>
         /// 通用添加数据
@@ -1475,52 +1696,144 @@ namespace Tools
         /// <returns></returns>
         public static int AddInTable(Dictionary<string, string> dicts, string TableName)
         {
-            StringBuilder sbr = new StringBuilder();
-            sbr.Append("insert into ");
-            sbr.Append(TableName);
-            sbr.Append(" (");
-            foreach (string key in dicts.Keys)
-            {
-                sbr.Append($"[{key}]");
-                sbr.Append(",");
-            }
-            sbr.Remove(sbr.Length - 1, 1);
-            sbr.Append(") values (");
-            //填充数据
-            foreach (string str in dicts.Values)
-            {
-                sbr.Append(str);
-                sbr.Append(",");
-            }
-            sbr.Remove(sbr.Length - 1, 1);
-            sbr.Append(")");
+            StringBuilder sbr = getInsertSqlStr(dicts, TableName, 0);
 
             return DBHelper.ExecuteCommand(sbr.ToString());
         }
         /// <summary>
-        /// 右键生成查询语句
+        /// 通用添加指定条数据
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void tools_codesql_Click(object sender, EventArgs e)
+        /// <param name="dicts"></param>
+        /// <param name="TableName"></param>
+        /// <param name="count">添加条数</param>
+        /// <returns></returns>
+        public static int AddInTable(Dictionary<string, string> dicts, string TableName, int count)
         {
-            string str = GetEasyFieldsNewString(table_select.SelectedValue.ToString());//字段字符串
-            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(str);
-        }
-        //生成网站目录
-        private void tools_createpage_Click(object sender, EventArgs e)
-        {
-            Createpage create = new Createpage();
-            create.Show();
+            StringBuilder sbr = getInsertSqlStr(dicts, TableName, count);
+
+            return DBHelper.ExecuteCommand(sbr.ToString());
         }
         /// <summary>
-        /// 转换字符串为stringbuilder
+        /// 获取添加语句
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void tools_stringbuilder_Click(object sender, EventArgs e)
+        /// <param name="dicts"></param>
+        /// <param name="TableName"></param>
+        /// <returns></returns>
+        private static StringBuilder getInsertSqlStr(Dictionary<string, string> dicts, string TableName, int? count)
         {
-
+            StringBuilder sbr = new StringBuilder();
+            for (int i = 0; i < count; i++)
+            {
+                sbr.Append("insert into ");
+                sbr.Append(TableName);
+                count = count == 0 ? 1 : count;
+                sbr.Append(" (");
+                foreach (string key in dicts.Keys)
+                {
+                    sbr.Append($"[{key}]");
+                    sbr.Append(",");
+                }
+                sbr.Remove(sbr.Length - 1, 1);
+                sbr.Append(") values (");
+                //填充数据
+                foreach (string str in dicts.Values)
+                {
+                    sbr.Append(str);
+                    sbr.Append(",");
+                }
+                sbr.Remove(sbr.Length - 1, 1);
+                sbr.Append(")");
+            }
+            return sbr;
         }
+        //随机化添加时间
+        private string AddTimeRandom(string Tablename)
+        {
+            string swhere = !checkbox_selectall.Checked ? "where ParentId=" + column_select.SelectedValue : "";
+            string sql = $"Update {Tablename} set AddTime = dateadd(minute, abs(checksum(newid())) % (datediff(minute, '2018-06-01', getdate()) + 1), '2018-06-01') {swhere}";
+            try
+            {
+                int count = DBHelper.ExecuteCommand(sql);
+                return $"修改成功,已修改{count}条数据";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        //重命名标题
+        private string TittleRandom(string Tablename)
+        {
+            string swhere = !checkbox_selectall.Checked ? "where ParentId=" + column_select.SelectedValue : "";
+            DataTable dt = DBHelper.GetDataSet("Select Name FROM SysColumns Where id=Object_Id('" + Tablename + "') order by colid asc");
+            string title = "Tittle";
+            string Id = "Id";
+            if (dt.Rows.Count > 0 && dt != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    string name = dr["Name"].ToString();
+                    if (name.Equals("ArticleTitle"))
+                    {
+                        title = "ArticleTitle";
+                        Id = "ArticleId";
+                        break;
+                    }
+                    else if (name.Equals("Tittle"))
+                    {
+                        title = "Tittle";
+                        Id = "Id";
+                        break;
+                    }
+                }
+            }
+            string sql = $"Update {Tablename} set {title}=(select Name from ColumnCategory where ColumnCategory.ColumnId={Tablename}.ParentId)+'_'+Cast({Id} as nvarchar) {swhere}";
+            try
+            {
+                int count = DBHelper.ExecuteCommand(sql);
+                return $"修改成功,已修改{count}条数据";
+                //return $"{sql}";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        //格式化OrderId
+        private string OrderIdRandom(string Tablename)
+        {
+            string swhere = !checkbox_selectall.Checked ? "where ParentId=" + column_select.SelectedValue : "";
+            DataTable dt = DBHelper.GetDataSet("Select Name FROM SysColumns Where id=Object_Id('" + Tablename + "') order by colid asc");
+            string Id = "Id";
+            if (dt.Rows.Count > 0 && dt != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    string name = dr["Name"].ToString();
+                    if (name.Equals("ArticleTitle"))
+                    {
+                        Id = "ArticleId";
+                        break;
+                    }
+                    else if (name.Equals("Tittle"))
+                    {
+                        Id = "Id";
+                        break;
+                    }
+                }
+            }
+            string sql = $"Update {Tablename} set OrderId={Id}-1 {swhere}";
+            try
+            {
+                int count = DBHelper.ExecuteCommand(sql);
+                return $"修改成功,已修改{count}条数据";
+                //return $"{sql}";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        #endregion
     }
 }
