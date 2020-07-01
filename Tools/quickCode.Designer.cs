@@ -257,7 +257,7 @@
             // checkbox_isshow
             // 
             this.checkbox_isshow.AutoSize = true;
-            this.checkbox_isshow.Location = new System.Drawing.Point(657, 76);
+            this.checkbox_isshow.Location = new System.Drawing.Point(668, 76);
             this.checkbox_isshow.Name = "checkbox_isshow";
             this.checkbox_isshow.Size = new System.Drawing.Size(51, 21);
             this.checkbox_isshow.TabIndex = 98;
@@ -267,7 +267,7 @@
             // checkbox_issystem
             // 
             this.checkbox_issystem.AutoSize = true;
-            this.checkbox_issystem.Location = new System.Drawing.Point(581, 76);
+            this.checkbox_issystem.Location = new System.Drawing.Point(592, 76);
             this.checkbox_issystem.Name = "checkbox_issystem";
             this.checkbox_issystem.Size = new System.Drawing.Size(75, 21);
             this.checkbox_issystem.TabIndex = 98;
@@ -276,7 +276,7 @@
             // 
             // button18
             // 
-            this.button18.Location = new System.Drawing.Point(741, 102);
+            this.button18.Location = new System.Drawing.Point(752, 102);
             this.button18.Name = "button18";
             this.button18.Size = new System.Drawing.Size(97, 23);
             this.button18.TabIndex = 97;
@@ -368,7 +368,7 @@
             // 
             // button10
             // 
-            this.button10.Location = new System.Drawing.Point(472, 102);
+            this.button10.Location = new System.Drawing.Point(483, 102);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(97, 23);
             this.button10.TabIndex = 87;
@@ -411,7 +411,7 @@
             // checkbox_repeater
             // 
             this.checkbox_repeater.AutoSize = true;
-            this.checkbox_repeater.Location = new System.Drawing.Point(581, 201);
+            this.checkbox_repeater.Location = new System.Drawing.Point(592, 201);
             this.checkbox_repeater.Name = "checkbox_repeater";
             this.checkbox_repeater.Size = new System.Drawing.Size(80, 21);
             this.checkbox_repeater.TabIndex = 94;
@@ -431,7 +431,7 @@
             // checkbox_pages
             // 
             this.checkbox_pages.AutoSize = true;
-            this.checkbox_pages.Location = new System.Drawing.Point(669, 201);
+            this.checkbox_pages.Location = new System.Drawing.Point(680, 201);
             this.checkbox_pages.Name = "checkbox_pages";
             this.checkbox_pages.Size = new System.Drawing.Size(51, 21);
             this.checkbox_pages.TabIndex = 93;
@@ -447,7 +447,7 @@
             // 
             // button17
             // 
-            this.button17.Location = new System.Drawing.Point(472, 137);
+            this.button17.Location = new System.Drawing.Point(483, 137);
             this.button17.Name = "button17";
             this.button17.Size = new System.Drawing.Size(97, 23);
             this.button17.TabIndex = 92;
@@ -457,7 +457,7 @@
             // 
             // button11
             // 
-            this.button11.Location = new System.Drawing.Point(679, 133);
+            this.button11.Location = new System.Drawing.Point(690, 133);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(97, 23);
             this.button11.TabIndex = 92;
@@ -500,7 +500,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(484, 172);
+            this.label11.Location = new System.Drawing.Point(495, 172);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(85, 17);
             this.label11.TabIndex = 90;
@@ -519,14 +519,14 @@
             // 
             // txt_cloumnname
             // 
-            this.txt_cloumnname.Location = new System.Drawing.Point(581, 103);
+            this.txt_cloumnname.Location = new System.Drawing.Point(592, 103);
             this.txt_cloumnname.Name = "txt_cloumnname";
             this.txt_cloumnname.Size = new System.Drawing.Size(151, 23);
             this.txt_cloumnname.TabIndex = 89;
             // 
             // txt_repeatername
             // 
-            this.txt_repeatername.Location = new System.Drawing.Point(581, 169);
+            this.txt_repeatername.Location = new System.Drawing.Point(592, 169);
             this.txt_repeatername.Name = "txt_repeatername";
             this.txt_repeatername.Size = new System.Drawing.Size(151, 23);
             this.txt_repeatername.TabIndex = 89;
@@ -547,7 +547,7 @@
             this.column_select.FormattingEnabled = true;
             this.column_select.Location = new System.Drawing.Point(318, 101);
             this.column_select.Name = "column_select";
-            this.column_select.Size = new System.Drawing.Size(148, 25);
+            this.column_select.Size = new System.Drawing.Size(156, 25);
             this.column_select.TabIndex = 88;
             this.column_select.SelectedIndexChanged += new System.EventHandler(this.column_select_SelectedIndexChanged);
             // 
@@ -666,7 +666,7 @@
             "PageDr5",
             "PageDr6",
             "PageDr7"});
-            this.pagedr_select.Location = new System.Drawing.Point(581, 132);
+            this.pagedr_select.Location = new System.Drawing.Point(592, 132);
             this.pagedr_select.Name = "pagedr_select";
             this.pagedr_select.Size = new System.Drawing.Size(92, 25);
             this.pagedr_select.TabIndex = 79;
@@ -717,7 +717,7 @@
             // 
             // button12
             // 
-            this.button12.Location = new System.Drawing.Point(785, 134);
+            this.button12.Location = new System.Drawing.Point(796, 134);
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(114, 23);
             this.button12.TabIndex = 71;

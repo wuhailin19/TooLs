@@ -203,10 +203,6 @@ namespace Tools
                 page_select.DisplayMember = "Value";
                 page_select.ValueMember = "Key";
                 page_select.Text = dt.Rows[0]["Value"].ToString();
-
-                string websitename = textBox3.Text.Substring(textBox3.Text.LastIndexOf("\\") + 1);
-                string datatbasename = getdatabasename(websitename);
-                database_select.Text = datatbasename;
             }
             catch (Exception ex)
             {
@@ -288,6 +284,7 @@ namespace Tools
         /// </summary>
         private void Init()
         {
+            #region 绑定字段类别
             //绑定字段类别
             Hashtable hashs = new Hashtable();
             hashs.Add("", "普通");
@@ -298,7 +295,9 @@ namespace Tools
             type_select.DisplayMember = "Value";
             type_select.ValueMember = "Key";
             type_select.Text = "普通";
+            #endregion
 
+            #region 绑定控件名
             //绑定控件名
             Hashtable hash = new Hashtable();
             hash.Add("TextType", "单行文本框");
@@ -312,13 +311,15 @@ namespace Tools
             fileds_select.DisplayMember = "Value";
             fileds_select.ValueMember = "Key";
             fileds_select.Text = "单行文本框";
+            #endregion
 
-            //设置页面DataRow变量
+            //设置页面DataRow变量初始状态
             pagedr_select.Text = "PageDr";
 
-            //绑定母版页变量列表
-            Dictionary<string, string> dic = new Dictionary<string, string>();
+            #region 绑定母版页字段列表
 
+            //绑定母版页字段列表
+            Dictionary<string, string> dic = new Dictionary<string, string>();
             dic.Add("comm_firstPbanner", "firstPbanner");
             dic.Add("comm_firstPageName", "firstPageName");
             dic.Add("comm_firstEnglishName", "firstEnglishName");
@@ -330,7 +331,7 @@ namespace Tools
             dic.Add("comm_Sbr_Navbar", "Sbr_Navbar");
             dic.Add("comm_Sbr_Page_Navbar", "Sbr_Page_Navbar");
             dic.Add("comm_Sbr_BearNav", "Sbr_BearNav");
-
+            #region 绑定右键菜单事件
             foreach (string str in dic.Keys)
             {
                 ToolStripItem toolStripItem = new ToolStripMenuItem(dic[str].ToString());
@@ -340,7 +341,11 @@ namespace Tools
 
                 tools_common.DropDownItems.Add(toolStripItem);
             }
+            #endregion
 
+            #endregion
+
+            #region 绑定新闻字段
             dic.Clear();
             //绑定新闻字段
             dic.Add("ArticleId", "ArticleId");
@@ -350,6 +355,7 @@ namespace Tools
             dic.Add("ArticleSummy", "ArticleSummy");
             dic.Add("ArticleContent", "ArticleContent");
             dic.Add("AddTime", "AddTime");
+
             foreach (string str in dic.Keys)
             {
                 ToolStripItem toolStripItem = new ToolStripMenuItem(dic[str].ToString());
@@ -359,7 +365,8 @@ namespace Tools
 
                 tool_article.DropDownItems.Add(toolStripItem);
             }
-            //初始化模型
+            #endregion
+
             BindColumnList();
 
             InitTools();
@@ -423,7 +430,7 @@ namespace Tools
                 switch (filedtype)
                 {
                     case "TextType":
-                        model.Content = "MaxLength=300,DfaulteValue=,TextLength=200";
+                        model.Content = $"MaxLength={(selecttxt.Length > 30 ? "500" : "300")},DfaulteValue=,TextLength=200";
                         model.Type = "TextType";
                         if (type_select.Text == "普通")
                         {
@@ -458,7 +465,6 @@ namespace Tools
                         model.Validation = "Isrequired=,IsOther=";
                         break;
                     case "MultipleTextType":
-                        model.Content = "Width=400,Height=120";
                         model.Type = "MultipleTextType";
                         if (type_select.Text == "英文")
                         {
@@ -480,7 +486,9 @@ namespace Tools
                             model.Alias = filedname;
                             model.FiledName = "chword_" + NumberToEnglish(count + 1);
                         }
-                        selecttxt = selecttxt.Replace("<br/>", "\r\n").Replace("<br >", "\r\n").Replace("<br>", "\r\n").Replace("</p>", "\r\n").Replace("<p>", "");
+                        selecttxt = selecttxt.Replace("<br/>", "\r\n").Replace("<br >", "\r\n").Replace("<br>", "\r\n").Replace("</p>\r\n<p>", "\r\n").Replace("<p>", "");
+                        int lines = selecttxt.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).Length;
+                        model.Content = $"Width=400,Height={(lines > 7 ? "150" : lines > 12 ? "200" : "120")}";
                         model.Validation = "";
                         break;
                     case "Editor":
@@ -676,11 +684,11 @@ namespace Tools
                 toolStripItemf.Click += contextMenuStrip1_ItemClick;
                 tools_addfiled.DropDownItems.Add(toolStripItemf);
 
-                ToolStripItem toolStripItems = new ToolStripMenuItem("时间");
-                toolStripItems.Name = "AddTime";
-                toolStripItems.Text = "时间";
-                toolStripItems.Click += contextMenuStrip1_ItemClick;
-                tools_addfiled.DropDownItems.Add(toolStripItems);
+                //ToolStripItem toolStripItems = new ToolStripMenuItem("时间");
+                //toolStripItems.Name = "AddTime";
+                //toolStripItems.Text = "时间";
+                //toolStripItems.Click += contextMenuStrip1_ItemClick;
+                //tools_addfiled.DropDownItems.Add(toolStripItems);
 
                 int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.SelectedValue + "'", "ModelId")["ModelId"]);
                 IList<ModelFiled> modellist = ModelFiled_dal.GetModelList(modelid);
@@ -761,8 +769,13 @@ namespace Tools
                 if (item.Name.Contains("word_") || item.Name.Contains("Summy"))
                 {
                     txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#Eval(\"{item.Name}\").ToString().Replace(\"\\r\\n\",\"<br/>\")%>") : ($"<%={masterpage}GetDataRowsValue({pagedr},\"{item.Name}\").Replace(\"\\r\\n\",\"<br/>\")%>"));
-                    selectcont = selectcont.Replace("<br/>", "\r\n").Replace("<br >", "\r\n").Replace("<br>", "\r\n").Replace("</p>", "\r\n").Replace("<p>", "");
+                    selectcont = selectcont.Replace("<br/>", "\r\n").Replace("<br >", "\r\n").Replace("<br>", "\r\n").Replace("</p>\r\n<p>", "\r\n").Replace("<p>", "").Replace("</p>", "");
                     UpdateFiledCont(item.Name, selectcont);
+                }
+                else if (item.Name.Contains("linkurl_"))
+                {
+
+                    txt_contentID.ActiveTextAreaControl.TextArea.InsertString(isrepeater ? ($"<%#!string.IsNullOrEmpty(Eval(\"{item.Name}\").ToString())?Eval(\"{item.Name}\").ToString():\"javascript:void(0);\"%>") : ($"<%=!string.IsNullOrEmpty({masterpage}GetDataRowsValue({pagedr},\"{item.Name}\"))?{masterpage}GetDataRowsValue({pagedr},\"{item.Name}\"):\"javascript:void(0);\"%>"));
                 }
                 else if (item.Name.Contains("desc_") || item.Name.Contains("Content"))
                 {
@@ -1446,7 +1459,7 @@ namespace Tools
             {
             }
         }
-        // <summary>
+        ///<summary>
         /// 绑定栏目列表
         /// </summary>
         public void BindColumnList()

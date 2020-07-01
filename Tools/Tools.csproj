@@ -52,8 +52,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ICSharpCode.TextEditor">
-      <HintPath>..\ICSharpCode.TextEditor.3.2\ICSharpCode.TextEditor.dll</HintPath>
+    <Reference Include="ICSharpCode.TextEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=4d61825e8dd49f1a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\WPF\ICSharpCodeTextEditor\lib\ICSharpCode.TextEditor.dll</HintPath>
     </Reference>
     <Reference Include="NPinyinPro, Version=0.3.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NPinyinPro.0.3.3\lib\net20\NPinyinPro.dll</HintPath>

@@ -203,21 +203,18 @@ namespace Tools
         }
 
         /// <summary>
-        /// 获得希望能最新排序号
+        /// 获得下一个排序号
         /// </summary>
         /// <returns>int</returns>
         public static int GetTopOrderID(string tablename)
         {
-            string sql = null;
-
-            sql = "SELECT top 1 orderid from " + tablename + " order by orderid desc";
+            string sql = "SELECT max(orderid) from " + tablename + "";
             DataTable dt = DBHelper.GetDataSet(sql);
             if (dt.Rows.Count > 0)
             {
                 return Convert.ToInt32(dt.Rows[0][0]) + 1;
             }
             else { return 0; }
-
         }
         /// <summary>
         /// 添加模型字段
