@@ -719,24 +719,24 @@ namespace Tools
                         newHeader = Head.Replace("\r\n", "").Replace("\t", "").Replace("> <", "><").Replace(" />", "/>").Replace("><", ">\r\n<");
                     Content = Content.Replace("\t", "").Replace("> <", "><").Replace(" />", "/>");
 
-                    if (Content.Length > (newFooter.Length + newHeader.Length))
-                    {
-                        if (Content.Contains(newHeader))
-                            Content = Content.Replace(newHeader, "");
-                        else if (Content.Contains(newFooter))
-                            Content = Content.Replace(newFooter, "");
-                        else
-                        {
-                            if (Content.Contains(FooterFirstdiv))
-                            {
-                                Content = Content.Replace(FooterFirstdiv, "");
-                            }
-                        }
-                        Content = Content.Replace("<tl:Head>", "");
-                        Content = Content.Replace("</tl:Head>", "");
-                        Content = Content.Replace("<tl:Foot>", "");
-                        Content = Content.Replace("</tl:Foot>", "");
-                    }
+                    //if (Content.Length > (newFooter.Length + newHeader.Length))
+                    //{
+                    //    if (Content.Contains(newHeader))
+                    //        Content = Content.Replace(newHeader, "");
+                    //    else if (Content.Contains(newFooter))
+                    //        Content = Content.Replace(newFooter, "");
+                    //    else
+                    //    {
+                    //        if (Content.Contains(FooterFirstdiv))
+                    //        {
+                    //            Content = Content.Replace(FooterFirstdiv, "");
+                    //        }
+                    //    }
+                    //}
+                    Content = Content.Replace("<tl:Head>", "");
+                    Content = Content.Replace("</tl:Head>", "");
+                    Content = Content.Replace("<tl:Foot>", "");
+                    Content = Content.Replace("</tl:Foot>", "");
                 }
                 else
                 {

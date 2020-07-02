@@ -103,6 +103,9 @@
             this.tools_toolpage = new System.Windows.Forms.ToolStripMenuItem();
             this.panel4 = new System.Windows.Forms.Panel();
             this.txt_contentID = new ICSharpCode.TextEditor.TextEditorControl();
+            this.设置Head内容ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.设置内容头部ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.设置内容底部ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -121,9 +124,12 @@
             this.tools_repeater,
             this.置于顶层ToolStripMenuItem,
             this.tools_codesql,
-            this.tools_stringbuilder});
+            this.tools_stringbuilder,
+            this.设置Head内容ToolStripMenuItem,
+            this.设置内容头部ToolStripMenuItem,
+            this.设置内容底部ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(188, 158);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(188, 246);
             // 
             // tools_common
             // 
@@ -867,6 +873,27 @@
             this.txt_contentID.TabIndex = 53;
             this.txt_contentID.TextChanged += new System.EventHandler(this.txt_contentID_TextChanged);
             // 
+            // 设置Head内容ToolStripMenuItem
+            // 
+            this.设置Head内容ToolStripMenuItem.Name = "设置Head内容ToolStripMenuItem";
+            this.设置Head内容ToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.设置Head内容ToolStripMenuItem.Text = "设置Head";
+            this.设置Head内容ToolStripMenuItem.Click += new System.EventHandler(this.设置Head内容ToolStripMenuItem_Click);
+            // 
+            // 设置内容头部ToolStripMenuItem
+            // 
+            this.设置内容头部ToolStripMenuItem.Name = "设置内容头部ToolStripMenuItem";
+            this.设置内容头部ToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.设置内容头部ToolStripMenuItem.Text = "设置内容头部";
+            this.设置内容头部ToolStripMenuItem.Click += new System.EventHandler(this.设置内容头部ToolStripMenuItem_Click);
+            // 
+            // 设置内容底部ToolStripMenuItem
+            // 
+            this.设置内容底部ToolStripMenuItem.Name = "设置内容底部ToolStripMenuItem";
+            this.设置内容底部ToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.设置内容底部ToolStripMenuItem.Text = "设置内容底部";
+            this.设置内容底部ToolStripMenuItem.Click += new System.EventHandler(this.设置内容底部ToolStripMenuItem_Click);
+            // 
             // quickCode
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -974,5 +1001,8 @@
         private System.Windows.Forms.CheckBox checkbox_selectall;
         private System.Windows.Forms.Panel panel4;
         private ICSharpCode.TextEditor.TextEditorControl txt_contentID;
+        private System.Windows.Forms.ToolStripMenuItem 设置Head内容ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 设置内容头部ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 设置内容底部ToolStripMenuItem;
     }
 }

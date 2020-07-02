@@ -147,12 +147,5 @@ namespace Tools
         {
             return ShowInputBox(FormStartPosition.CenterScreen, Title, Prompt, DefaultResponse);
         }
-        // 调用
-        //           string inMsg = InputBox.ShowInputBox("请输入管理员(admin)的密码", string.Empty);
-        //            if (inMsg.Trim() != string.Empty)
-        //             {
-        //                 MessageBox.Show(inMsg);
-        //             }
-
     }
 }

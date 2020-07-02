@@ -212,6 +212,9 @@ namespace Tools
             DataTable dt = DBHelper.GetDataSet(sql);
             if (dt.Rows.Count > 0)
             {
+                if (dt.Rows[0][0] is DBNull) {
+                    return 0;
+                }
                 return Convert.ToInt32(dt.Rows[0][0]) + 1;
             }
             else { return 0; }

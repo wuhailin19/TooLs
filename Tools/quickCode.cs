@@ -320,17 +320,17 @@ namespace Tools
 
             //绑定母版页字段列表
             Dictionary<string, string> dic = new Dictionary<string, string>();
-            dic.Add("comm_firstPbanner", "firstPbanner");
-            dic.Add("comm_firstPageName", "firstPageName");
-            dic.Add("comm_firstEnglishName", "firstEnglishName");
-            dic.Add("comm_firstPageDescr", "firstPageDescr");
-            dic.Add("comm_nowPbanner", "nowPbanner");
-            dic.Add("comm_nowPageName", "nowPageName");
-            dic.Add("comm_nowPageEnglishName", "nowPageEnglishName");
-            dic.Add("comm_nowPageDescr", "nowPageDescr");
-            dic.Add("comm_Sbr_Navbar", "Sbr_Navbar");
-            dic.Add("comm_Sbr_Page_Navbar", "Sbr_Page_Navbar");
-            dic.Add("comm_Sbr_BearNav", "Sbr_BearNav");
+            dic.Add("firstPbanner", "firstPbanner");
+            dic.Add("firstPageName", "firstPageName");
+            dic.Add("firstEnglishName", "firstEnglishName");
+            dic.Add("firstPageDescr", "firstPageDescr");
+            dic.Add("nowPbanner", "nowPbanner");
+            dic.Add("nowPageName", "nowPageName");
+            dic.Add("nowPageEnglishName", "nowPageEnglishName");
+            dic.Add("nowPageDescr", "nowPageDescr");
+            dic.Add("Sbr_Navbar", "Sbr_Navbar");
+            dic.Add("Sbr_Page_Navbar", "Sbr_Page_Navbar");
+            dic.Add("Sbr_BearNav", "Sbr_BearNav");
             #region 绑定右键菜单事件
             foreach (string str in dic.Keys)
             {
@@ -355,6 +355,8 @@ namespace Tools
             dic.Add("ArticleSummy", "ArticleSummy");
             dic.Add("ArticleContent", "ArticleContent");
             dic.Add("AddTime", "AddTime");
+            dic.Add("Summy", "Summy【SingleArticle】");
+            dic.Add("Content", "Content【SingleArticle】");
 
             foreach (string str in dic.Keys)
             {
@@ -689,7 +691,7 @@ namespace Tools
                 //toolStripItems.Text = "时间";
                 //toolStripItems.Click += contextMenuStrip1_ItemClick;
                 //tools_addfiled.DropDownItems.Add(toolStripItems);
-
+                if (table_select.SelectedValue.ToString() == "System.Data.DataRowView") return;
                 int modelid = Convert.ToInt32(ModelFiled_dal.GetModelIdByExpression("TableName='" + table_select.SelectedValue + "'", "ModelId")["ModelId"]);
                 IList<ModelFiled> modellist = ModelFiled_dal.GetModelList(modelid);
                 foreach (ModelFiled model in modellist)
@@ -1033,14 +1035,8 @@ namespace Tools
             {
                 string str = string.IsNullOrEmpty(txt_count.Text) ? "0" : txt_count.Text;
                 int count = Convert.ToInt32(str) == 0 ? 1 : Convert.ToInt32(str);
-                if (count != 0)
-                {
-                    AddInTable(default_fileds, table_select.SelectedValue.ToString(), count);
-                }
-                else
-                {
-                    AddInTable(default_fileds, table_select.SelectedValue.ToString());
-                }
+
+                AddInTable(default_fileds, table_select.SelectedValue.ToString(), count);
                 MessageBox.Show("添加成功");
             }
             catch (Exception ex)
@@ -1102,8 +1098,12 @@ namespace Tools
             string database = database_select.Text;//数据库名称
             string sql;
             string columnname = txt_cloumnname.Text.Trim();//栏目名
-            int maxorderid = Convert.ToInt32(DBHelper.GetDataSet("select max(orderid) as maxorderid from ColumnCategory").Rows[0]["maxorderid"]);
-            string parentid = column_select.SelectedValue.ToString();
+            int maxorderid = DBHelper.GetDataSet("select max(orderid) as maxorderid from ColumnCategory").Rows[0]["maxorderid"] is DBNull ? 0 : Convert.ToInt32(DBHelper.GetDataSet("select max(orderid) as maxorderid from ColumnCategory").Rows[0]["maxorderid"]);
+            string parentid = "0";
+            if (column_select.Items.Count > 0)
+            {
+                parentid = column_select.SelectedValue.ToString();
+            }
             try
             {
                 if (checkbox_issystem.Checked)//系统栏目
@@ -1407,9 +1407,9 @@ namespace Tools
                     dt = DBHelper.GetDataSet("use " + database + " select name,(name+'('+ISNULL(tablename,'')+')') tablename from (select create_date,name,(select ModelName from ContentModel where sys.tables.name=ContentModel.tablename)as tablename from sys.tables where is_ms_shipped = 0)a  order by create_date desc");
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                        table_select.DataSource = dt;
                         table_select.DisplayMember = "tablename";
                         table_select.ValueMember = "name";
+                        table_select.DataSource = dt;
                         table_select.Text = dt.Rows[0]["tablename"].ToString();
 
                         result = true;
@@ -1432,9 +1432,9 @@ namespace Tools
                 dt = DBHelper.GetDataSet("select name,database_id from sys.databases order by create_date desc");
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    this.database_select.DataSource = dt;
                     this.database_select.DisplayMember = "name";
                     this.database_select.ValueMember = "database_id";
+                    this.database_select.DataSource = dt;
                     bool result = false;
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
@@ -1471,9 +1471,9 @@ namespace Tools
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    this.column_select.DataSource = dt;
                     this.column_select.DisplayMember = "CName";
                     this.column_select.ValueMember = "ColumnId";
+                    this.column_select.DataSource = dt;
                     this.column_select.Text = dt.Rows[0]["CName"].ToString();
                 }
                 dt = DBHelper.GetDataSet($"select Name from ColumnCategory where ColumnId=(select ParentId from ColumnCategory where ColumnId={column_select.SelectedValue})");
@@ -1735,11 +1735,11 @@ namespace Tools
         private static StringBuilder getInsertSqlStr(Dictionary<string, string> dicts, string TableName, int? count)
         {
             StringBuilder sbr = new StringBuilder();
+            count = count == 0 ? 1 : count;
             for (int i = 0; i < count; i++)
             {
                 sbr.Append("insert into ");
                 sbr.Append(TableName);
-                count = count == 0 ? 1 : count;
                 sbr.Append(" (");
                 foreach (string key in dicts.Keys)
                 {
@@ -1848,5 +1848,47 @@ namespace Tools
             }
         }
         #endregion
+
+        private void 设置Head内容ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StringBuilder sbr = new StringBuilder();
+            string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+            txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+
+            sbr.Append($"<tl:Header>\n");
+            sbr.Append(selectcont + "\n");
+            sbr.Append($"</tl:Header>");
+
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(sbr.ToString());
+        }
+
+        private void 设置内容头部ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StringBuilder sbr = new StringBuilder();
+            string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+            txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+
+            sbr.Append($"<tl:Head>\n");
+            sbr.Append(selectcont + "\n");
+            sbr.Append($"</tl:Head>");
+
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(sbr.ToString());
+        }
+
+        private void 设置内容底部ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StringBuilder sbr = new StringBuilder();
+            string selectcont = txt_contentID.ActiveTextAreaControl.SelectionManager.SelectedText;
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString("");
+            txt_contentID.ActiveTextAreaControl.SelectionManager.RemoveSelectedText();
+
+            sbr.Append($"<tl:Foot>\n");
+            sbr.Append(selectcont + "\n");
+            sbr.Append($"</tl:Foot>");
+
+            txt_contentID.ActiveTextAreaControl.TextArea.InsertString(sbr.ToString());
+        }
     }
 }

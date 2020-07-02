@@ -55,6 +55,8 @@ namespace Tools
             }
             return sb.ToString();
         }
+        private static string[] doms = { "head ", "body", "asp:repeater", "section", "script", "div", "ul", "ol", "header", "asp:content " };
+
         //格式化Html代码
         public static string FormatHtmlCode(string code)
         {
@@ -64,7 +66,6 @@ namespace Tools
             int count = 2;
             int times = 0;
             string[] lines = code.Split('\n').Length>1? code.Split('\n'): code.Split('\r');
-            string[] doms = { "head ", "body", "asp:repeater", "section","script", "div", "ul", "ol", "header", "asp:content "};
             string linestr = null;
             for (int i = 0; i < lines.Length; i++)
             {
